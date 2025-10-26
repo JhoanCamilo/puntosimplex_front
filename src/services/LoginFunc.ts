@@ -1,11 +1,12 @@
 interface usuario {
   user: string;
   password: string;
+  role: string;
 }
 
-const usuarios: usuario[] = [
-  { user: "Admin", password: "Admin" },
-  { user: "Jhoan", password: "Jhoan123" },
+export const usuarios: usuario[] = [
+  { user: "Admin", password: "Admin", role: "Admin" },
+  { user: "Jhoan", password: "Jhoan123", role: "Mesero" },
 ];
 
 interface LoginResponse {
