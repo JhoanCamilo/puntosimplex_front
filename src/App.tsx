@@ -9,7 +9,6 @@ import ProtectedRoute from "./services/ProtectedRoute";
 
 export default function App() {
   return (
-    // ✅ AuthProvider envuelve a las rutas, pero no dentro de <Routes>
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginView />} />

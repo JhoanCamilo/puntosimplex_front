@@ -1,0 +1,16 @@
+.navBarContainer{
+    height: 80px;
+    background-color: #141414;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-bottom: 20px;
+}
+.navBar_logo{
+    width: 80px;
+}
+.Banner{
+    color: white;
+}
