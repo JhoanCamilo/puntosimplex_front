@@ -5,12 +5,13 @@ import AdminView from "./Views/Home_Admin";
 import WaiterView from "./Views/Home_Waiter";
 import CashierView from "./Views/Home_Cashier";
 import ProtectedRoute from "./services/ProtectedRoute";
+import UsuariosIndex from "./Views/ges_usuarios/UsuariosIndex";
 
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<LoginView />} />
+        //? Rutas Admin
         <Route
           path="/Admin"
           element={
@@ -20,6 +21,16 @@ export default function App() {
           }
         />
         <Route
+          path="/GestionUsuarios"
+          element={
+            <ProtectedRoute role="Admin">
+              <UsuariosIndex />
+            </ProtectedRoute>
+          }
+        />
+
+        //? Rutas Mesero
+        <Route
           path="/Mesero"
           element={
             <ProtectedRoute role="Mesero">
@@ -27,6 +38,8 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        //? Rutas Cajero
         <Route
           path="/Cajero"
           element={

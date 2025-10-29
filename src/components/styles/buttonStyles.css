@@ -9,6 +9,28 @@
 }
 
 /*? ModuleBtn*/
-.ModuleBtnContainer{
-    
+.linkContainer{
+    text-decoration: none;
+    margin: 20px;
+}
+.butttonContainer{
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: solid 1px #3185df;
+    border-radius: 5px;
+}
+.icono{
+    font-size: 50px;
+    margin: 0px;
+    padding: 0px;
+    color: #126fd2;
+}
+.moduleText{
+    text-align: center;
+    text-decoration: none;
+    color: black;
 }
