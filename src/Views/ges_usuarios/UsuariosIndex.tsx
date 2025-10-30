@@ -3,7 +3,8 @@ import "../Styles/UsuariosView.css"
 import { useState } from "react"
 import { roles } from "../../services/utils/filters"
 import { usuarios } from "../../services/utils/dataSimulation"
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaEdit } from "react-icons/fa";
+import { TiUserDelete } from "react-icons/ti";
 
 export default function UsuariosIndex (){
     const [rol, setRol] = useState<number | "">("")
@@ -55,12 +56,13 @@ export default function UsuariosIndex (){
                 </tr>
                 {
                     usuarios.map((item) => (
-                        <tr>
+                        <tr key={item.usuarioid}>
                             <td>{item.nombre_1 + " " + item.apellido_2 + " " + item.apellido_1 + " " + item.apellido_2}</td>
                             <td>{item.rolid}</td>
                             <td>{item.activo ? "Si" : "No"}</td>
-                            <td>
-
+                            <td className="userTableActions">
+                                <button className="actionButton"><FaEdit color="#4287f5"/></button>
+                                <button className="actionButton"><TiUserDelete color="#f54242"/></button>
                             </td>
                         </tr>
                     ))

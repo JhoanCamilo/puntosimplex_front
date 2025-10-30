@@ -39,3 +39,18 @@
     border: solid 1px gray;
     padding: 10px;
 }
+.userTableActions{
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.actionButton{
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    border: none;
+    margin: 5px;
+    background-color: transparent;
+    font-size: 20px;
+}
