@@ -1,65 +1,53 @@
-interface usuario {
-  user: string;
-  password: string;
-  role: string;
-}
+import { createClient } from "@supabase/supabase-js";
 
-export const usuarios: usuario[] = [
-  { user: "Admin", password: "Admin", role: "Admin" },
-  { user: "Jhoan", password: "Jhoan123", role: "Mesero" },
-];
+let url = import.meta.env.VITE_SUPABASE_URL;
+let key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const supabase = createClient(url, key);
 
 interface LoginResponse {
   status: number;
   message: string;
-  data?: unknown;
+  user?: any;
 }
 
-export async function LoginFunction(usuario: string, contrasena: string): Promise<LoginResponse> {
-//   try {
-//     const response = await fetch("https://tu-backend.com/api/login", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         user: usuario,
-//         password: contrasena,
-//       }),
-//     });
+export async function LoginFunction(
+  usuario: string,
+  contrasena: string
+): Promise<LoginResponse> {
+  try {
+    // Paso 1: Buscar el correo asociado al usuario
+    const { data: userRow, error: userError } = await supabase
+      .from("usuario")
+      .select("correo, rol_id, usuario")
+      .ilike("usuario", usuario.trim())
+      .maybeSingle();
 
-//     const data = await response.json();
+    if (userError || !userRow) {
+      return { status: 404, message: "Usuario no encontrado" };
+    }
 
-//     return {
-//       status: response.status,
-//       message: data.message || "Login procesado",
-//       data: data.user || null,
-//     };
-//   } catch (error) {
-//     console.error("Error al conectar con el backend:", error);
-//     return {
-//       status: 500,
-//       message: "Error de conexión con el servidor",
-//     };
-//   }
-    return new Promise<{ status: number; message: string }>((resolve) => {
-        // Simula una llamada al servidor (delay opcional)
-        setTimeout(() => {
-            const encontrado = usuarios.find(
-                (u) => u.user === usuario && u.password === contrasena
-            );
-
-            if (encontrado) {
-                resolve({
-                    status: 200,
-                    message: `Bienvenido, ${encontrado.user}!`
-                });
-            } else {
-                resolve({
-                    status: 401,
-                    message: "Usuario o contraseña incorrectos. Por favor, intente de nuevo"
-                });
-            }
-        }, 800);
+    // Paso 2: Iniciar sesión con Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: userRow.correo,
+      password: contrasena,
     });
+
+    if (error) {
+      return { status: 401, message: error.message };
+    }
+
+    // Paso 3: Devolver respuesta exitosa
+    return {
+      status: 200,
+      message: "Inicio de sesión exitoso",
+      user: {
+        username: userRow.usuario,
+        role: userRow.rol_id,
+      },
+    };
+  } catch (err: any) {
+    console.error(err);
+    return { status: 500, message: "Error interno del servidor" };
+  }
 }

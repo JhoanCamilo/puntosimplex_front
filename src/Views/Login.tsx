@@ -3,7 +3,7 @@ import { SimpleLoginInput, PasswordLoginInput } from "../components/Inputs/Login
 import { LoginButton } from "../components/buttons/LoginButton";
 import logoImage from "../assets/puntoLogo.png";
 import { useEffect, useState } from "react";
-import { LoginFunction, usuarios } from "../services/LoginFunc";
+import { LoginFunction } from "../services/LoginFunc";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../context/AuthContext";
@@ -21,37 +21,13 @@ export default function LoginView() {
   async function handleLogin() {
     const result = await LoginFunction(user, pass);
 
-    if (result.status === 200) {
-      // Buscar el usuario en el mock local
-      const userData = usuarios.find((u) => u.user === user);
-
-      if (userData) {
-        // Autenticación global + redirección automática
-        login({
-          username: userData.user,
-          role: userData.role as "Admin" | "Mesero" | "Cajero",
-        });
-      }
-
-      toast.success(result.message, {
-        position: "top-right",
-        autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
+    if (result.status === 200 && result.user) {
+      console.log(result);
+      
+      toast.success(result.message);
+      login(result.user);
     } else {
-      toast.warn(result.message, {
-        position: "top-right",
-        autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
+      toast.error(result.message);
     }
   }
 
