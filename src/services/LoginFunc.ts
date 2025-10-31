@@ -1,14 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 
-let url = import.meta.env.VITE_SUPABASE_URL;
-let key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const supabase = createClient(url, key);
 
 interface LoginResponse {
   status: number;
   message: string;
-  user?: any;
+  user?: unknown;
 }
 
 export async function LoginFunction(
@@ -16,10 +16,14 @@ export async function LoginFunction(
   contrasena: string
 ): Promise<LoginResponse> {
   try {
-    // Paso 1: Buscar el correo asociado al usuario
+    // ✅ Paso 1: Obtener usuario + correo + rol.descripcion con JOIN
     const { data: userRow, error: userError } = await supabase
       .from("usuario")
-      .select("correo, rol_id, usuario")
+      .select(`
+        correo,
+        usuario,
+        rol:rol_id ( descripcion )
+      `)
       .ilike("usuario", usuario.trim())
       .maybeSingle();
 
@@ -27,7 +31,7 @@ export async function LoginFunction(
       return { status: 404, message: "Usuario no encontrado" };
     }
 
-    // Paso 2: Iniciar sesión con Supabase Auth
+    // ✅ Paso 2: Iniciar sesión en Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
       email: userRow.correo,
       password: contrasena,
@@ -37,16 +41,17 @@ export async function LoginFunction(
       return { status: 401, message: error.message };
     }
 
-    // Paso 3: Devolver respuesta exitosa
+    // ✅ Paso 3: Devolver éxito con rol JOIN-eado
     return {
       status: 200,
       message: "Inicio de sesión exitoso",
       user: {
         username: userRow.usuario,
-        role: userRow.rol_id,
+        role: userRow.rol.descripcion, // ← YA NO necesitas otra consulta
       },
     };
-  } catch (err: any) {
+
+  } catch (err) {
     console.error(err);
     return { status: 500, message: "Error interno del servidor" };
   }
