@@ -12,8 +12,6 @@ export const NavBar : React.FC = () => {
 
             username = userObject.username;
             
-            console.log("Nombre de usuario extraído:", username);
-
         } catch (e) {
             console.error("Error al convertir la cadena a JSON:", e);
         }

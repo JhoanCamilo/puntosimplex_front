@@ -21,9 +21,7 @@ export default function LoginView() {
   async function handleLogin() {
     const result = await LoginFunction(user, pass);
 
-    if (result.status === 200 && result.user) {
-      console.log(result);
-      
+    if (result.status === 200 && result.user) {      
       toast.success(result.message);
       login(result.user);
     } else {

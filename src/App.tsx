@@ -6,6 +6,7 @@ import WaiterView from "./Views/Home_Waiter";
 import CashierView from "./Views/Home_Cashier";
 import ProtectedRoute from "./services/ProtectedRoute";
 import UsuariosIndex from "./Views/ges_usuarios/UsuariosIndex";
+import CreateUsers from "./Views/ges_usuarios/UsuariosCreate";
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
           element={
             <ProtectedRoute role="Admin">
               <UsuariosIndex />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/CreateOrEditUsuarios"
+          element={
+            <ProtectedRoute role="Admin">
+              <CreateUsers />
             </ProtectedRoute>
           }
         />

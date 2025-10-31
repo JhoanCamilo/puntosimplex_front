@@ -1,5 +1,10 @@
+export interface rol{
+    rol_id: number
+    descripcion: string
+    activo: boolean
+}
 export interface usuario{
-    usuarioid: number
+    usuario_id: number
     rol: string
     nombre_1: string
     nombre_2?: string

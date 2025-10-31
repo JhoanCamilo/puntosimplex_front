@@ -47,7 +47,7 @@ export async function LoginFunction(
       message: "Inicio de sesión exitoso",
       user: {
         username: userRow.usuario,
-        role: userRow.rol.descripcion, // ← YA NO necesitas otra consulta
+        role: userRow.rol.descripcion,
       },
     };
 

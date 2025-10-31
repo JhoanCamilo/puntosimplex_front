@@ -1,3 +1,8 @@
+.viewContainer{
+    width: 100%;
+    height: 100vh;
+    padding: 15px;
+}
 .filtersContainer{
     width: 100%;
     padding: 10px;
@@ -6,26 +11,31 @@
     display: flex;
 }
 .filterFieldContainer{
-    width: 200px;
+    width: 300px;
     display: flex;
     flex-direction: column;
     margin: 20px;
 }
 .filterField{
-    height: 25px;
+    height: 35px;
     border-radius: 5px;
     border: solid 2px gray;
     padding-left: 5px;
+    font-size: 15px;
 }
 .filterFieldSel{
-    height: 30px;
+    height: 40px;
     border-radius: 5px;
     border: solid 2px gray;
+    font-size: 15px;
 }
 .filterButton{
-    width: 100px;
+    width: 120px;
     height: 25px;
     margin-left: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     background-color: #379adb;
     border: none;
     border-radius: 3px;
@@ -53,4 +63,38 @@
     margin: 5px;
     background-color: transparent;
     font-size: 20px;
+}
+.simpleInputContainer{
+    margin-top: 20px;
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.createOrEditInfoContainer{
+    width: 97.9%;
+    display: flex;
+}
+.personalInfoContainer{
+    width: 600px;
+    margin-top: 30px;
+}
+.nombreEmpleado{
+    display: flex;
+}
+.userRoleSelectContainer{
+    margin-top: 20px;
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.userRoleSelect{
+    width: 96%;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: solid 1px gray;
+    padding-left: 5px;
+    margin-top: 10px;
 }
