@@ -3,7 +3,7 @@ import type { rol } from "../../services/utils/models";
 import { NavBar } from "../../components/layout/Navbar";
 import { getRoles } from "../../services/rolesFuncs";
 import { SimpleInput, ReadOnlyInput } from "../../components/Inputs/formInputs";
-import "../Styles/UsuariosView.css"
+import "../Styles/UsuariosView.css";
 
 export default function CreateUsers() {
   const [rolSelect, setRolSelect] = useState<number | "">("");
@@ -14,6 +14,7 @@ export default function CreateUsers() {
   const [apellido2, setApellido2] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [usuario, setUsuario] = useState<string>();
+  const [tempPass, setTempPass] = useState<string>();
 
   useEffect(() => {
     async function fetchData() {
@@ -22,6 +23,53 @@ export default function CreateUsers() {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    function generarUsuario() {
+      if (!nombre1 || !apellido1) {
+        setUsuario(""); // si faltan datos, no generamos
+        return;
+      }
+
+      const n1 = nombre1.trim().toLowerCase();
+      const n2 = nombre2?.trim().toLowerCase() || "";
+      const a1 = apellido1.trim().toLowerCase();
+
+      let usuarioFinal = "";
+
+      // ✅ Caso 1: solo un nombre
+      if (!n2) {
+        usuarioFinal = n1.substring(0, 3) + a1;
+      }
+      // ✅ Caso 2: dos nombres → primera letra de cada uno
+      else {
+        usuarioFinal = n1.charAt(0) + n2.charAt(0) + a1;
+      }
+
+      setUsuario(usuarioFinal.toUpperCase());
+    }
+
+    function generarContrasenaTemporal() {
+      // Tres letras + tres números
+      const letras = "abcdefghijklmnopqrstuvwxyz";
+      const numeros = "0123456789";
+
+      const randomLetters =
+        letras[Math.floor(Math.random() * letras.length)] +
+        letras[Math.floor(Math.random() * letras.length)] +
+        letras[Math.floor(Math.random() * letras.length)];
+
+      const randomNumbers =
+        numeros[Math.floor(Math.random() * numeros.length)] +
+        numeros[Math.floor(Math.random() * numeros.length)] +
+        numeros[Math.floor(Math.random() * numeros.length)];
+
+      setTempPass(randomLetters + randomNumbers);
+    }
+
+    generarUsuario();
+    generarContrasenaTemporal();
+  }, [nombre1, nombre2, apellido1]);
 
   return (
     <>
@@ -96,8 +144,14 @@ export default function CreateUsers() {
                 ))}
               </select>
             </div>
+            <ReadOnlyInput
+              label="Contraseña temporal"
+              type="text"
+              value={tempPass}
+            />
           </div>
         </div>
+        <button className="newUserBtn">Crear Usuario</button>
       </div>
     </>
   );

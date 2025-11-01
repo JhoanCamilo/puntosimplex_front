@@ -98,3 +98,13 @@
     padding-left: 5px;
     margin-top: 10px;
 }
+.newUserBtn{
+    width: 100px;
+    height: 30px;
+    margin-left: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #379adb;
+    color: white;
+}
