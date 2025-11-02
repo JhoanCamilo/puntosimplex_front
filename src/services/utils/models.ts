@@ -14,3 +14,8 @@ export interface usuario{
     activo: boolean
     correo: string
 }
+export interface categoria{
+    categoria_id: number
+    descripcion: string
+    activo: boolean
+}

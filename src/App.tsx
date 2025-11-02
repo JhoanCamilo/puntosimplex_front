@@ -7,6 +7,8 @@ import CashierView from "./Views/Home_Cashier";
 import ProtectedRoute from "./services/ProtectedRoute";
 import UsuariosIndex from "./Views/ges_usuarios/UsuariosIndex";
 import CreateUsers from "./Views/ges_usuarios/UsuariosCreate";
+import InventarioHome from "./Views/ges_Inventario/inventarioHome";
+import ArticulosIndex from "./Views/ges_Inventario/ges_articulos/articulosIndex";
 
 export default function App() {
   return (
@@ -34,6 +36,22 @@ export default function App() {
           element={
             <ProtectedRoute role="Admin">
               <CreateUsers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Inventario"
+          element={
+            <ProtectedRoute role="Admin">
+              <InventarioHome />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Articulos"
+          element={
+            <ProtectedRoute role="Admin">
+              <ArticulosIndex />
             </ProtectedRoute>
           }
         />

@@ -8,7 +8,7 @@ const supabase = createClient(url, key);
 
 export async function getRoles(): Promise<rol[]> {
   try {
-    let query = supabase.from("rol").select(`*`);
+    const query = supabase.from("rol").select(`*`);
 
     const { data, error } = await query;
 

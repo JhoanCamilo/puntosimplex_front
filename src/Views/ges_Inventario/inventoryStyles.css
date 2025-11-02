@@ -1,0 +1,39 @@
+.filterCategoryContainer{
+    display: flex;
+    width: 500px;
+}
+.userRoleSelectContainer{
+    margin-top: 20px;
+    margin-left: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.productCategorySelect{
+    width: 96%;
+    height: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: solid 1px gray;
+    padding-left: 5px;
+    margin-top: 10px;
+}
+.filterCatButton{
+    width: 120px;
+    height: 25px;
+    margin-left: 15px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #379adb;
+    border: none;
+    border-radius: 3px;
+    color: white;
+}
+.productsTable th{
+    width: 150px;
+}
+.tableContainer{
+    padding-right: 30px;
+}

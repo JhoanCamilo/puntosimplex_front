@@ -10,6 +10,7 @@
 
 /*? ModuleBtn*/
 .linkContainer{
+    width: fit-content;
     text-decoration: none;
     margin: 20px;
 }
