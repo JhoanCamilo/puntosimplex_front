@@ -19,3 +19,11 @@ export interface categoria{
     descripcion: string
     activo: boolean
 }
+export interface producto{
+    articulo_id: number
+    descripcion: string
+    valor_unitario: number
+    precio: number
+    categoria: string
+    activo: boolean
+}

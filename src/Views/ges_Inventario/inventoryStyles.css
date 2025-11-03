@@ -2,16 +2,15 @@
     display: flex;
     width: 500px;
 }
-.userRoleSelectContainer{
+.categorySelectContainer{
     margin-top: 20px;
     margin-left: 15px;
     display: flex;
-    flex-direction: column;
     width: 100%;
 }
 .productCategorySelect{
-    width: 96%;
-    height: 30px;
+    width: 95.5%;
+    height: 32px;
     border-radius: 5px;
     overflow: hidden;
     border: solid 1px gray;
@@ -31,9 +30,13 @@
     border-radius: 3px;
     color: white;
 }
-.productsTable th{
-    width: 150px;
+.productsTable th td{
+    width: fit-content;
 }
 .tableContainer{
     padding-right: 30px;
+}
+.productTableActions{
+    width: fit-content;
+    display: flex;
 }

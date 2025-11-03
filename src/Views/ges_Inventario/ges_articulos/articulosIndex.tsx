@@ -1,28 +1,43 @@
 import { NavBar } from "../../../components/layout/Navbar";
 import { SimpleInput } from "../../../components/Inputs/formInputs";
 import { useEffect, useState } from "react";
-import type { categoria } from "../../../services/utils/models";
+import type { categoria, producto } from "../../../services/utils/models";
 import { getCategorias } from "../../../services/gesCategorias";
+import { getArticulos } from "../../../services/gesArticulos";
 import "../inventoryStyles.css";
-import { FaSearch } from "react-icons/fa";
+import { FaEdit, FaSearch } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { TiUserDelete } from "react-icons/ti";
 
 export default function ArticulosIndex() {
   const [itemDesc, setItemDesc] = useState<string>("");
   const [catSelect, setCatSelect] = useState<number | "">("");
+  const [activo, setActivo] = useState<string | "">("");
   const [categoriasList, setCategoriasList] = useState<categoria[]>([]);
+  const [productosList, setProductosList] = useState<producto[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       const selectRolesOpts = await getCategorias();
+      const listaProductos = await getArticulos();
       setCategoriasList(selectRolesOpts);
+      setProductosList(listaProductos);
     }
     fetchData();
   }, []);
+
+  async function handleSearch() {
+    const products = await getArticulos(itemDesc, catSelect, activo);
+    setProductosList(products);
+  }
 
   return (
     <>
       <NavBar />
       <div className="viewContainer">
+        <Link to={"/ArticulosCrear"}>
+          <button className="filterButton">Crear artículo</button>
+        </Link>
         <div>
           <h2>Filtros</h2>
           <div className="filterCategoryContainer">
@@ -52,9 +67,22 @@ export default function ArticulosIndex() {
                   </option>
                 ))}
               </select>
+              {/* FILTRO ACTIVO */}
             </div>
+              <div className="filterFieldContainer">
+                <label>Estado</label>
+                <select
+                  value={activo}
+                  onChange={(e) => setActivo(e.target.value)}
+                  className="productCategorySelect"
+                >
+                  <option value="">Todos</option>
+                  <option value="0">Activo</option>
+                  <option value="1">Inactivo</option>
+                </select>
+              </div>
           </div>
-          <button className="filterCatButton">
+          <button className="filterCatButton" onClick={handleSearch}>
             Buscar <FaSearch />
           </button>
         </div>
@@ -72,6 +100,28 @@ export default function ArticulosIndex() {
                 <th>Acciones</th>
               </tr>
             </thead>
+            <tbody>
+              {productosList.map((item) => (
+                <tr key={item.articulo_id}>
+                  <td>{item.descripcion}</td>
+                  <td>{item.valor_unitario}</td>
+                  <td>{item.precio}</td>
+                  <td>{item.categoria.descripcion}</td>
+                  <td>{item.activo ? "Activo" : "Inactivo"}</td>
+                  <td>0</td>
+                  <td className="productTableActions">
+                    <Link to={"/ArticuloEditar"}>
+                      <button className="actionButton">
+                        <FaEdit color="#4287f5" />
+                      </button>
+                    </Link>
+                    <button className="actionButton">
+                      <TiUserDelete color="#f54242" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>

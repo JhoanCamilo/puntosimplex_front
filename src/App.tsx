@@ -9,74 +9,105 @@ import UsuariosIndex from "./Views/ges_usuarios/UsuariosIndex";
 import CreateUsers from "./Views/ges_usuarios/UsuariosCreate";
 import InventarioHome from "./Views/ges_Inventario/inventarioHome";
 import ArticulosIndex from "./Views/ges_Inventario/ges_articulos/articulosIndex";
+import ArticulosCreate from "./Views/ges_Inventario/ges_articulos/createArtículos";
+import ArticulosEdit from "./Views/ges_Inventario/ges_articulos/editArtículos";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
-        //? Rutas Admin
-        <Route
-          path="/Admin"
-          element={
-            <ProtectedRoute role="Admin">
-              <AdminView />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/GestionUsuarios"
-          element={
-            <ProtectedRoute role="Admin">
-              <UsuariosIndex />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/CreateOrEditUsuarios"
-          element={
-            <ProtectedRoute role="Admin">
-              <CreateUsers />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Inventario"
-          element={
-            <ProtectedRoute role="Admin">
-              <InventarioHome />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Articulos"
-          element={
-            <ProtectedRoute role="Admin">
-              <ArticulosIndex />
-            </ProtectedRoute>
-          }
+      <>
+        {/* ✅ Aquí va el contenedor */}
+        <ToastContainer 
+          position="top-right" 
+          autoClose={3000}
+          theme="colored"
         />
 
-        //? Rutas Mesero
-        <Route
-          path="/Mesero"
-          element={
-            <ProtectedRoute role="Mesero">
-              <WaiterView />
-            </ProtectedRoute>
-          }
-        />
+        <Routes>
+          {/* Rutas Admin */}
+          <Route
+            path="/Admin"
+            element={
+              <ProtectedRoute role="Admin">
+                <AdminView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/GestionUsuarios"
+            element={
+              <ProtectedRoute role="Admin">
+                <UsuariosIndex />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/CreateOrEditUsuarios"
+            element={
+              <ProtectedRoute role="Admin">
+                <CreateUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Inventario"
+            element={
+              <ProtectedRoute role="Admin">
+                <InventarioHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Articulos"
+            element={
+              <ProtectedRoute role="Admin">
+                <ArticulosIndex />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ArticulosCrear"
+            element={
+              <ProtectedRoute role="Admin">
+                <ArticulosCreate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ArticuloEditar"
+            element={
+              <ProtectedRoute role="Admin">
+                <ArticulosEdit />
+              </ProtectedRoute>
+            }
+          />
 
-        //? Rutas Cajero
-        <Route
-          path="/Cajero"
-          element={
-            <ProtectedRoute role="Cajero">
-              <CashierView />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<LoginView />} />
-      </Routes>
+          {/* Rutas Mesero */}
+          <Route
+            path="/Mesero"
+            element={
+              <ProtectedRoute role="Mesero">
+                <WaiterView />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Rutas Cajero */}
+          <Route
+            path="/Cajero"
+            element={
+              <ProtectedRoute role="Cajero">
+                <CashierView />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<LoginView />} />
+        </Routes>
+      </>
     </AuthProvider>
   );
 }
