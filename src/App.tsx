@@ -19,7 +19,6 @@ export default function App() {
   return (
     <AuthProvider>
       <>
-        {/* ✅ Aquí va el contenedor */}
         <ToastContainer 
           position="top-right" 
           autoClose={3000}
@@ -77,7 +76,7 @@ export default function App() {
             }
           />
           <Route
-            path="/ArticuloEditar"
+            path="/ArticuloEditar/:id"
             element={
               <ProtectedRoute role="Admin">
                 <ArticulosEdit />

@@ -1,6 +1,6 @@
 .filterCategoryContainer{
     display: flex;
-    width: 500px;
+    width: 100%;
 }
 .categorySelectContainer{
     margin-top: 20px;
@@ -37,6 +37,6 @@
     padding-right: 30px;
 }
 .productTableActions{
-    width: fit-content;
+    width: 77%;
     display: flex;
 }

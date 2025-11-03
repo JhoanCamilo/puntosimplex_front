@@ -46,3 +46,35 @@
     align-items: center;
     margin-right: 10px;
 }
+
+.userCatSelectContainer{
+    display: flex;
+    margin: 15px;
+}
+
+/* Contenedor */
+.activoCheckboxContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Alineación del checkbox con el texto */
+.checkInputControl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- Checkbox grande y moderno --- */
+.inputCheck {
+  width: 20px;     /* ancho más grande */
+  height: 20px;    /* alto más grande */
+  cursor: pointer;
+  accent-color: #007bff; /* color cuando está marcado */
+}
+
+.checkInputControl p {
+  font-size: 25px;
+  margin: 0;
+}

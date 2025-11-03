@@ -14,7 +14,8 @@ export async function getArticulos(
   try {
     let query = supabase
       .from("articulo")
-      .select(`*, categoria:categoria_id ( descripcion )`);
+      .select(`*, categoria:categoria_id ( descripcion )`)
+      .order("descripcion", { ascending: true });
 
     // ✅ Filtro por descripción
     if (descripcion && descripcion.trim().length > 0) {
@@ -98,5 +99,63 @@ export async function crearArticulo(data: {
       status: 500,
       message: "Ocurrió un error inesperado.",
     };
+  }
+}
+
+export async function getArticuloById(id: number) {
+  try {
+    const { data, error } = await supabase
+      .from("articulo")
+      .select(`*`)
+      .eq("articulo_id", id)
+      .maybeSingle(); // ✅ trae solo uno
+
+    if (error) {
+      console.error("❌ Error al consultar artículo:", error);
+      return { status: 400, message: "Error al obtener el artículo" };
+    }
+
+    if (!data) {
+      return { status: 404, message: "Artículo no encontrado" };
+    }
+
+    return { status: 200, data };
+  } catch (err) {
+    console.error("❌ Error inesperado:", err);
+    return { status: 500, message: "Error interno del servidor" };
+  }
+}
+
+export async function updateArticulo(
+  id: number,
+  data: {
+    descripcion: string;
+    valor_unitario: number;
+    precio: number;
+    categoria_id: number;
+    activo: boolean;
+  }
+) {
+  try {
+    const { error } = await supabase
+      .from("articulo")
+      .update({
+        descripcion: data.descripcion,
+        valor_unitario: data.valor_unitario,
+        precio: data.precio,
+        categoria_id: data.categoria_id,
+        activo: data.activo,
+      })
+      .eq("articulo_id", id);
+
+    if (error) {
+      console.error("❌ Error al actualizar artículo:", error);
+      return { status: 400, message: "Error al actualizar los datos" };
+    }
+
+    return { status: 200, message: "Artículo actualizado correctamente" };
+  } catch (err) {
+    console.error("❌ Error inesperado:", err);
+    return { status: 500, message: "Error interno del servidor" };
   }
 }

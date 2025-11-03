@@ -84,11 +84,7 @@ export const ReadOnlyInput: React.FC<readOnlyInputProps> = ({
 };
 
 
-export const ActivoCheckbox: React.FC<checkInputProps> = ({
-  label = "Activo",
-  value,
-  onValueChange,
-}) => {
+export const ActivoCheckbox: React.FC<checkInputProps> = ({label = "Activo", value, onValueChange}) => {
   function handleChange() {
     // Si estaba activo y quieren desactivarlo → pedir confirmación
     if (value === true) {
@@ -108,11 +104,10 @@ export const ActivoCheckbox: React.FC<checkInputProps> = ({
   return (
     <div className="activoCheckboxContainer">
       <label>{" "}{label}</label>
-        <input
-          type="checkbox"
-          checked={value}
-          onChange={handleChange}
-        />
+      <div className="checkInputControl">
+        <input type="checkbox" checked={value} onChange={handleChange} className="inputCheck"/>
+        <p style={value ? {color: "#39ed69"} : {color: "#ed5d39"}}>{value ? "Activo" : "Inactivo"}</p>
+      </div>
     </div>
   );
 };

@@ -3,9 +3,13 @@ import { SimpleInput } from "../../../components/Inputs/formInputs";
 import { useEffect, useState } from "react";
 import type { categoria } from "../../../services/utils/models";
 import { getCategorias } from "../../../services/gesCategorias";
-import { crearArticulo } from "../../../services/gesArticulos";
 import { ActivoCheckbox } from "../../../components/Inputs/formInputs";
+import {
+  getArticuloById,
+  updateArticulo,
+} from "../../../services/gesArticulos";
 import { toast } from "react-toastify";
+import { useParams, useNavigate } from "react-router-dom";
 import "../inventoryStyles.css";
 
 export default function ArticulosEdit() {
@@ -16,12 +20,25 @@ export default function ArticulosEdit() {
   const [categoriasList, setCategoriasList] = useState<categoria[]>([]);
   const [activo, setActivo] = useState<boolean>(true);
 
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    async function fetchData() {
+    async function load() {
+      const result = await getArticuloById(Number(id));
       const selectRolesOpts = await getCategorias();
       setCategoriasList(selectRolesOpts);
+
+      if (result.status === 200) {
+        console.log(result);
+        setItemDesc(result.data.descripcion);
+        setPrecioCompra(result.data.valor_unitario);
+        setPrecioVenta(result.data.precio);
+        setActivo(result.data.activo);
+        setCatSelect(result.data.categoria_id);
+      }
     }
-    fetchData();
+    load();
   }, []);
 
   // ✅ Validación del formulario
@@ -31,22 +48,21 @@ export default function ArticulosEdit() {
     precioVenta !== "" &&
     catSelect !== "";
 
-  // ✅ Crear artículo
-  async function handleCreate() {
-    const response = await crearArticulo({
+  async function handleUpdate(e: React.FormEvent) {
+    e.preventDefault(); // ✅ evita que el formulario provoque navigation automática
+
+    const response = await updateArticulo(Number(id), {
       descripcion: itemDesc,
       valor_unitario: Number(precioCompra),
       precio: Number(precioVenta),
-      categoria_id: catSelect as number,
+      categoria_id: Number(catSelect),
+      activo: activo,
     });
 
     if (response.status === 200) {
       toast.success(response.message);
-      // Reset opcional
-      setItemDesc("");
-      setPrecioCompra("");
-      setPrecioVenta("");
-      setCatSelect("");
+
+      setTimeout(() => navigate("/Articulos"), 800); // ✅ ahora sí se verá el toast
     } else {
       toast.error(response.message);
     }
@@ -85,35 +101,41 @@ export default function ArticulosEdit() {
               }
             />
 
-            <div className="userRoleSelectContainer">
-              <p>Categoría</p>
-              <select
-                id="productCat"
-                className="productCategorySelect"
-                value={catSelect}
-                onChange={(e) =>
-                  setCatSelect(
-                    e.target.value === "" ? "" : Number(e.target.value)
-                  )
-                }
-              >
-                <option value="">Seleccione una categoría...</option>
-                {categoriasList.map((r) => (
-                  <option key={r.categoria_id} value={r.categoria_id}>
-                    {r.descripcion}
-                  </option>
-                ))}
-              </select>
-              <ActivoCheckbox label="Estado" value={activo} onValueChange={setActivo}/>
+            <div className="userCatSelectContainer">
+              <div>
+                <p>Categoría</p>
+                <select
+                  id="productCat"
+                  className="productCategorySelect"
+                  value={catSelect}
+                  onChange={(e) =>
+                    setCatSelect(
+                      e.target.value === "" ? "" : Number(e.target.value)
+                    )
+                  }
+                >
+                  <option value="">Seleccione una categoría...</option>
+                  {categoriasList.map((r) => (
+                    <option key={r.categoria_id} value={r.categoria_id}>
+                      {r.descripcion}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <ActivoCheckbox
+                label="Estado"
+                value={activo}
+                onValueChange={setActivo}
+              />
             </div>
           </div>
 
           <button
             className="filterCatButton"
             disabled={!isFormValid}
-            onClick={handleCreate}
+            onClick={handleUpdate}
           >
-            Crear
+            Guardar
           </button>
         </div>
       </div>

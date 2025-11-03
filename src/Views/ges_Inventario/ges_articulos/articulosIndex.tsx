@@ -7,7 +7,6 @@ import { getArticulos } from "../../../services/gesArticulos";
 import "../inventoryStyles.css";
 import { FaEdit, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { TiUserDelete } from "react-icons/ti";
 
 export default function ArticulosIndex() {
   const [itemDesc, setItemDesc] = useState<string>("");
@@ -39,7 +38,7 @@ export default function ArticulosIndex() {
           <button className="filterButton">Crear artículo</button>
         </Link>
         <div>
-          <h2>Filtros</h2>
+          <h2 style={{marginLeft: "15px"}}>Filtros</h2>
           <div className="filterCategoryContainer">
             <SimpleInput
               label="Descripción"
@@ -110,14 +109,11 @@ export default function ArticulosIndex() {
                   <td>{item.activo ? "Activo" : "Inactivo"}</td>
                   <td>0</td>
                   <td className="productTableActions">
-                    <Link to={"/ArticuloEditar"}>
+                    <Link to={`/ArticuloEditar/${item.articulo_id}`}>
                       <button className="actionButton">
                         <FaEdit color="#4287f5" />
                       </button>
                     </Link>
-                    <button className="actionButton">
-                      <TiUserDelete color="#f54242" />
-                    </button>
                   </td>
                 </tr>
               ))}
