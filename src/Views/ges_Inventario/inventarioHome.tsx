@@ -8,7 +8,7 @@ export default function InventarioHome() {
     <NavBar />
     <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
         <ModuleButton title="Gestión Artículos" route="/Articulos" icon={<PiBowlFoodFill/>}/>
-        <ModuleButton title="Gestión Categorías" route="#" icon={<MdCategory/>}/>
+        <ModuleButton title="Gestión Categorías" route="/Categorias" icon={<MdCategory/>}/>
     </div>
   </>;
 }
