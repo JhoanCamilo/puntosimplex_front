@@ -35,7 +35,7 @@ export default function ArticulosIndex() {
       <NavBar />
       <div className="viewContainer">
         <Link to={"/ArticulosCrear"}>
-          <button className="filterButton">Crear artículo</button>
+          <button className="filterButton">Crear producto</button>
         </Link>
         <div>
           <h2 style={{marginLeft: "15px"}}>Filtros</h2>

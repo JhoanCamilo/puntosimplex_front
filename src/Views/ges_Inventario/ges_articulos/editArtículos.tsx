@@ -73,11 +73,11 @@ export default function ArticulosEdit() {
       <NavBar />
       <div className="viewContainer">
         <div>
-          <h2>Editar artículo</h2>
+          <h2>Editar producto</h2>
 
           <div className="createFieldsContainer">
             <SimpleInput
-              label="Descripción"
+              label="Nombre del producto"
               type="text"
               value={itemDesc}
               onValueChange={setItemDesc}
