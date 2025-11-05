@@ -50,7 +50,7 @@ export default function ArticulosIndex() {
             fontSize: "16px",
             marginBottom: "20px"
           }}>
-            Crear artículo
+            Crear producto
           </button>
         </Link>
         

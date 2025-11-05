@@ -55,32 +55,33 @@ export async function crearArticulo(data: {
   categoria_id: number;
 }) {
   try {
-    // ✅ 1. Verificar si ya existe un producto con la misma descripción
-    const { data: existe, error: errorExiste } = await supabase
+    const desc = data.descripcion.trim().toLowerCase();
+
+    // ✅ Verificar productos existentes ignorando may/min
+    const { data: existentes, error: errorExiste } = await supabase
       .from("articulo")
-      .select("articulo_id")
-      .eq("descripcion", data.descripcion.trim())
-      .maybeSingle();
+      .select("articulo_id, descripcion")
+      .ilike("descripcion", desc);
 
     if (errorExiste) {
       console.error("❌ Error verificando existencia:", errorExiste);
       return { status: 400, message: "Error al validar el producto." };
     }
 
-    if (existe) {
+    if (existentes && existentes.length > 0) {
       return {
         status: 409,
         message: "Este producto ya está registrado.",
       };
     }
 
-    // ✅ 2. Insertar el nuevo producto
+    // ✅ Insertar nuevo artículo
     const { error: insertError } = await supabase.from("articulo").insert({
       descripcion: data.descripcion.trim(),
       valor_unitario: data.valor_unitario,
       precio: data.precio,
       categoria_id: data.categoria_id,
-      activo: true, // ✅ activo por defecto
+      activo: true,
     });
 
     if (insertError) {
@@ -88,19 +89,17 @@ export async function crearArticulo(data: {
       return { status: 400, message: insertError.message };
     }
 
-    // ✅ 3. Éxito
     return {
       status: 200,
       message: "Producto correctamente registrado.",
     };
   } catch (error) {
     console.error("❌ Error inesperado:", error);
-    return {
-      status: 500,
-      message: "Ocurrió un error inesperado.",
-    };
+    return { status: 500, message: "Ocurrió un error inesperado." };
   }
 }
+
+
 
 export async function getArticuloById(id: number) {
   try {
@@ -137,10 +136,34 @@ export async function updateArticulo(
   }
 ) {
   try {
+    const desc = data.descripcion.trim().toLowerCase();
+
+    // ✅ Buscar otros productos con la misma descripción
+    const { data: existentes, error: errorExiste } = await supabase
+      .from("articulo")
+      .select("articulo_id, descripcion")
+      .ilike("descripcion", desc);
+
+    if (errorExiste) {
+      console.error("❌ Error verificando duplicado:", errorExiste);
+      return { status: 400, message: "Error al validar el producto." };
+    }
+
+    // ✅ Filtrar si existe otro producto diferente con ese nombre
+    const duplicado = existentes?.find((p) => p.articulo_id !== id);
+
+    if (duplicado) {
+      return {
+        status: 409,
+        message: "Ya existe otro producto con este nombre.",
+      };
+    }
+
+    // ✅ Actualizar artículo
     const { error } = await supabase
       .from("articulo")
       .update({
-        descripcion: data.descripcion,
+        descripcion: data.descripcion.trim(),
         valor_unitario: data.valor_unitario,
         precio: data.precio,
         categoria_id: data.categoria_id,
@@ -150,12 +173,12 @@ export async function updateArticulo(
 
     if (error) {
       console.error("❌ Error al actualizar artículo:", error);
-      return { status: 400, message: "Error al actualizar los datos" };
+      return { status: 400, message: "Error al actualizar los datos." };
     }
 
-    return { status: 200, message: "Artículo actualizado correctamente" };
+    return { status: 200, message: "Artículo actualizado correctamente." };
   } catch (err) {
     console.error("❌ Error inesperado:", err);
-    return { status: 500, message: "Error interno del servidor" };
+    return { status: 500, message: "Error interno del servidor." };
   }
 }
