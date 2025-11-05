@@ -1,11 +1,10 @@
 import { NavBar } from "../../../components/layout/Navbar";
 import { SimpleInput } from "../../../components/Inputs/formInputs";
 import { useEffect, useState } from "react";
-import type { categoria } from "../../../services/utils/models";
+import { type categoria } from "../../../services/utils/models";
 import { getCategorias } from "../../../services/gesCategorias";
 import { crearArticulo } from "../../../services/gesArticulos";
 import { toast } from "react-toastify";
-import "../inventoryStyles.css";
 
 export default function ArticulosCreate() {
   const [itemDesc, setItemDesc] = useState<string>("");
@@ -18,7 +17,7 @@ export default function ArticulosCreate() {
 
   useEffect(() => {
     async function fetchData() {
-      const selectRolesOpts = await getCategorias();
+      const selectRolesOpts = await getCategorias("", ""); // Traer todas
       setCategoriasList(selectRolesOpts);
     }
     fetchData();
@@ -31,11 +30,8 @@ export default function ArticulosCreate() {
     precioVenta !== "" &&
     catSelect !== "";
 
-  async function handleCreate() {
-    if (errorDescripcion) {
-      toast.error(errorDescripcion);
-      return;
-    }
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault(); // Evita que la página se recargue
 
     const response = await crearArticulo({
       descripcion: itemDesc,
@@ -46,6 +42,7 @@ export default function ArticulosCreate() {
 
     if (response.status === 200) {
       toast.success(response.message);
+      // Reset
       setItemDesc("");
       setPrecioCompra("");
       setPrecioVenta("");
@@ -59,85 +56,97 @@ export default function ArticulosCreate() {
   return (
     <>
       <NavBar />
-      <div className="viewContainer">
-        <h2>Crear producto</h2>
+      {/* Contenedor principal  */}
+      <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
+        
+        <h2 style={{ marginLeft: "15px", marginTop: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+          Crear artículo
+        </h2>
 
-        <div className="createFieldsContainer">
-          {/* ✅ Input descripción con validación */}
-          <SimpleInput
-            label="Descripción"
-            type="text"
-            value={itemDesc}
-            onValueChange={(val) => {
-              const soloLetras = val.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "");
-              setItemDesc(soloLetras);
+        {/* Usamos <form> para manejar el evento onSubmit */}
+        <form onSubmit={handleCreate}>
+          {/* Tarjeta gris para los campos  */}
+          <div style={{
+            backgroundColor: "#f9f9f9",
+            padding: "20px",
+            borderRadius: "8px",
+            border: "1px solid #eee"
+          }}>
+            
+            {/* Campos del formulario con espaciado */}
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Descripción"
+                type="text"
+                value={itemDesc}
+                onValueChange={setItemDesc}
+              />
+            </div>
 
-              const trimmed = soloLetras.trim();
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Valor de compra"
+                type="number"
+                value={precioCompra}
+                onValueChange={(val) =>
+                  setPrecioCompra(val === "" ? "" : Number(val))
+                }
+              />
+            </div>
 
-              if (trimmed.length === 0) {
-                setErrorDescripcion("Este campo es obligatorio.");
-              } else if (trimmed.length < 3) {
-                setErrorDescripcion("Debe tener mínimo 3 caracteres.");
-              } else if (trimmed.length > 20) {
-                setErrorDescripcion("Debe tener máximo 20 caracteres.");
-              } else {
-                setErrorDescripcion("");
-              }
-            }}
-            required
-          />
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Valor de venta"
+                type="number"
+                value={precioVenta}
+                onValueChange={(val) =>
+                  setPrecioVenta(val === "" ? "" : Number(val))
+                }
+              />
+            </div>
 
-          {errorDescripcion && (
-            <p className="inputErrorMessage">{errorDescripcion}</p>
-          )}
-
-          <SimpleInput
-            label="Valor de compra"
-            type="number"
-            value={precioCompra}
-            onValueChange={(val) =>
-              setPrecioCompra(val === "" ? "" : Number(val))
-            }
-          />
-
-          <SimpleInput
-            label="Valor de venta"
-            type="number"
-            value={precioVenta}
-            onValueChange={(val) =>
-              setPrecioVenta(val === "" ? "" : Number(val))
-            }
-          />
-
-          <div className="userRoleSelectContainer">
-            <p>Categoría</p>
-            <select
-              id="productCat"
-              className="productCategorySelect"
-              value={catSelect}
-              onChange={(e) =>
-                setCatSelect(
-                  e.target.value === "" ? "" : Number(e.target.value)
-                )
-              }
-            >
-              <option value="">Seleccione una categoría...</option>
-              {categoriasList.map((r) => (
-                <option key={r.categoria_id} value={r.categoria_id}>
-                  {r.descripcion}
-                </option>
-              ))}
-            </select>
+            {/* Select de Categoría */}
+            <div style={{ fontFamily: "sans-serif" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>Categoría</label>
+              <select
+                id="productCat"
+                style={{ width: "200px", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", height: "38px" }}
+                value={catSelect}
+                onChange={(e) =>
+                  setCatSelect(
+                    e.target.value === "" ? "" : Number(e.target.value)
+                  )
+                }
+              >
+                <option value="">Seleccione una categoría...</option>
+                {categoriasList.map((r) => (
+                  <option key={r.categoria_id} value={r.categoria_id}>
+                    {r.descripcion}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
           </div>
-        </div>
 
-        <button
-          className="filterCatButton"
-          disabled={!isFormValid}
-          onClick={handleCreate}
-        >
-          Crear
-        </button>
+          {/* Botón de Crear  */}
+          <button
+            type="submit" // Cambiado de onClick a type="submit"
+            disabled={!isFormValid}
+            style={{
+              backgroundColor: isFormValid ? "#007bff" : "#cccccc", // Azul (o gris si está deshabilitado)
+              color: "white",
+              border: "none",
+              padding: "10px 15px",
+              borderRadius: "5px",
+              cursor: isFormValid ? "pointer" : "not-allowed",
+              fontSize: "16px",
+              marginTop: "20px"
+            }}
+          >
+            Crear
+          </button>
+        </form>
       </div>
     </>
   );

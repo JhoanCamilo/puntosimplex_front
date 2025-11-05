@@ -10,7 +10,6 @@ import {
 } from "../../../services/gesArticulos";
 import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
-import "../inventoryStyles.css";
 
 export default function ArticulosEdit() {
   const [itemDesc, setItemDesc] = useState<string>("");
@@ -26,7 +25,7 @@ export default function ArticulosEdit() {
   useEffect(() => {
     async function load() {
       const result = await getArticuloById(Number(id));
-      const selectRolesOpts = await getCategorias();
+      const selectRolesOpts = await getCategorias("", ""); // Traer todas
       setCategoriasList(selectRolesOpts);
 
       if (result.status === 200) {
@@ -41,7 +40,6 @@ export default function ArticulosEdit() {
     load();
   }, []);
 
-  // ✅ Validación del formulario
   const isFormValid =
     itemDesc.trim() !== "" &&
     precioCompra !== "" &&
@@ -49,7 +47,7 @@ export default function ArticulosEdit() {
     catSelect !== "";
 
   async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault(); // ✅ evita que el formulario provoque navigation automática
+    e.preventDefault(); 
 
     const response = await updateArticulo(Number(id), {
       descripcion: itemDesc,
@@ -61,8 +59,7 @@ export default function ArticulosEdit() {
 
     if (response.status === 200) {
       toast.success(response.message);
-
-      setTimeout(() => navigate("/Articulos"), 800); // ✅ ahora sí se verá el toast
+      setTimeout(() => navigate("/Articulos"), 800);
     } else {
       toast.error(response.message);
     }
@@ -71,42 +68,63 @@ export default function ArticulosEdit() {
   return (
     <>
       <NavBar />
-      <div className="viewContainer">
-        <div>
-          <h2>Editar producto</h2>
+      {/* Contenedor principal  */}
+      <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
+        
+        <h2 style={{ marginLeft: "15px", marginTop: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+          Editar artículo
+        </h2>
 
-          <div className="createFieldsContainer">
-            <SimpleInput
-              label="Nombre del producto"
-              type="text"
-              value={itemDesc}
-              onValueChange={setItemDesc}
-            />
+        {/* Usamos <form> para manejar el evento onSubmit */}
+        <form onSubmit={handleUpdate}>
+          {/* Tarjeta gris para los campos  */}
+          <div style={{
+            backgroundColor: "#f9f9f9",
+            padding: "20px",
+            borderRadius: "8px",
+            border: "1px solid #eee"
+          }}>
+            
+            {/* Campos del formulario con espaciado */}
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Descripción"
+                type="text"
+                value={itemDesc}
+                onValueChange={setItemDesc}
+              />
+            </div>
 
-            <SimpleInput
-              label="Valor de compra"
-              type="number"
-              value={precioCompra}
-              onValueChange={(val) =>
-                setPrecioCompra(val === "" ? "" : Number(val))
-              }
-            />
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Valor de compra"
+                type="number"
+                value={precioCompra}
+                onValueChange={(val) =>
+                  setPrecioCompra(val === "" ? "" : Number(val))
+                }
+              />
+            </div>
 
-            <SimpleInput
-              label="Valor de venta"
-              type="number"
-              value={precioVenta}
-              onValueChange={(val) =>
-                setPrecioVenta(val === "" ? "" : Number(val))
-              }
-            />
+            <div style={{ marginBottom: "15px" }}>
+              <SimpleInput
+                label="Valor de venta"
+                type="number"
+                value={precioVenta}
+                onValueChange={(val) =>
+                  setPrecioVenta(val === "" ? "" : Number(val))
+                }
+              />
+            </div>
 
-            <div className="userCatSelectContainer">
-              <div>
-                <p>Categoría</p>
+            {/* Contenedor para Categoría y Estado  */}
+            <div style={{ display: "flex", gap: "20px", alignItems: "flex-end", flexWrap: "wrap" }}>
+              {/* Select de Categoría */}
+              <div style={{ fontFamily: "sans-serif" }}>
+                <label style={{ display: "block", marginBottom: "5px" }}>Categoría</label>
                 <select
                   id="productCat"
-                  className="productCategorySelect"
+                  style={{ width: "200px", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", height: "38px" }}
                   value={catSelect}
                   onChange={(e) =>
                     setCatSelect(
@@ -122,22 +140,35 @@ export default function ArticulosEdit() {
                   ))}
                 </select>
               </div>
+
+              {/* Checkbox de Estado */}
               <ActivoCheckbox
                 label="Estado"
                 value={activo}
                 onValueChange={setActivo}
               />
             </div>
+            
           </div>
 
+          {/* Botón de Guardar  */}
           <button
-            className="filterCatButton"
+            type="submit" // Cambiado de onClick a type="submit"
             disabled={!isFormValid}
-            onClick={handleUpdate}
+            style={{
+              backgroundColor: isFormValid ? "#007bff" : "#cccccc", // Azul (o gris si está deshabilitado)
+              color: "white",
+              border: "none",
+              padding: "10px 15px",
+              borderRadius: "5px",
+              cursor: isFormValid ? "pointer" : "not-allowed",
+              fontSize: "16px",
+              marginTop: "20px"
+            }}
           >
             Guardar
           </button>
-        </div>
+        </form>
       </div>
     </>
   );

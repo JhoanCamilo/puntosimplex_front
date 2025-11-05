@@ -11,7 +11,8 @@ import InventarioHome from "./Views/ges_Inventario/inventarioHome";
 import ArticulosIndex from "./Views/ges_Inventario/ges_articulos/articulosIndex";
 import ArticulosCreate from "./Views/ges_Inventario/ges_articulos/createArtículos";
 import ArticulosEdit from "./Views/ges_Inventario/ges_articulos/editArtículos";
-
+import ControlCategoria from "./Views/ges_Inventario/ges_categoriasx/controlcategoria";
+import CategoriaEditar from "./Views/ges_Inventario/ges_categoriasx/CategoriaEditar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -80,6 +81,23 @@ export default function App() {
             element={
               <ProtectedRoute role="Admin">
                 <ArticulosEdit />
+              </ProtectedRoute>
+            }
+          />
+           {/* --- ruta gestion categoria --- */}
+          <Route
+            path="/Categorias"
+            element={
+              <ProtectedRoute role="Admin">
+                <ControlCategoria />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/CategoriaEditar/:id"
+            element={
+              <ProtectedRoute role="Admin">
+                <CategoriaEditar />
               </ProtectedRoute>
             }
           />
