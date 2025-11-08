@@ -21,6 +21,7 @@ interface readOnlyInputProps {
 interface checkInputProps{
   label: string
   value?: boolean
+  confirmMessage: string
   onValueChange: (val: boolean) => void
 }
 
@@ -84,12 +85,12 @@ export const ReadOnlyInput: React.FC<readOnlyInputProps> = ({
 };
 
 
-export const ActivoCheckbox: React.FC<checkInputProps> = ({label = "Activo", value, onValueChange}) => {
+export const ActivoCheckbox: React.FC<checkInputProps> = ({label = "Activo", value, confirmMessage, onValueChange}) => {
   function handleChange() {
     // Si estaba activo y quieren desactivarlo → pedir confirmación
     if (value === true) {
       const confirmar = window.confirm(
-        "¿Seguro que deseas deshabilitar este producto?"
+        confirmMessage
       );
 
       if (!confirmar) {

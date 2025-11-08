@@ -247,6 +247,7 @@ export default function ArticulosEdit() {
               <ActivoCheckbox
                 label="Estado"
                 value={activo}
+                confirmMessage="¿Seguro que deseas deshabilitar este producto?"
                 onValueChange={setActivo}
               />
             </div>

@@ -147,4 +147,79 @@ export async function generarAliasUnicoFront(baseAlias: string): Promise<string>
   }
 }
 
+export async function getUsuarioById(id: string) {
+  try {
+    const { data, error } = await supabase
+      .from("usuario")
+      .select(`*, rol:rol_id ( descripcion )`)
+      .eq("usuario_id", id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error consultando usuario:", error);
+      return { status: 400, message: "Error consultando el usuario." };
+    }
+
+    if (!data) {
+      return { status: 404, message: "Usuario no encontrado." };
+    }
+
+    return { status: 200, data };
+  } catch (err) {
+    console.error("Error inesperado:", err);
+    return { status: 500, message: "Error interno del servidor" };
+  }
+}
+
+export async function updateUsuario(
+  id: number,
+  data: {
+    correo: string;
+    usuario: string;
+    rol_id: number;
+    activo: boolean;
+  }
+) {
+  try {
+    // ✅ 1. Verificar si existe otro usuario con mismo correo o usuario
+    const { data: usuarioExistente, error: errorExist } = await supabase
+      .from("usuario")
+      .select("usuario_id")
+      .or(`correo.eq.${data.correo},usuario.eq.${data.usuario}`)
+      .neq("usuario_id", id); // ✅ EXCLUIR el actual
+
+    if (errorExist) {
+      console.error("Error validando duplicados:", errorExist);
+      return { status: 400, message: "Error al validar duplicados" };
+    }
+
+    if (usuarioExistente && usuarioExistente.length > 0) {
+      return {
+        status: 409,
+        message: "Ya existe un usuario o correo idéntico en el sistema.",
+      };
+    }
+
+    // ✅ 2. Proceder con el update
+    const { error } = await supabase
+      .from("usuario")
+      .update({
+        correo: data.correo,
+        usuario: data.usuario,
+        rol_id: data.rol_id,
+        activo: data.activo,
+      })
+      .eq("usuario_id", id);
+
+    if (error) {
+      console.error("Error al actualizar usuario:", error);
+      return { status: 400, message: "Error al actualizar usuario" };
+    }
+
+    return { status: 200, message: "Usuario actualizado correctamente" };
+  } catch (err) {
+    console.error("Error inesperado:", err);
+    return { status: 500, message: "Error interno del servidor" };
+  }
+}
 

@@ -180,11 +180,11 @@ export default function UsuariosIndex() {
                   {/* Botones de Acción */}
                   <td style={{ padding: "12px", border: "1px solid #ddd", textAlign: "center", display: "flex", gap: "10px" }}>
                     
-                    {/* <Link to={`/CreateOrEditUsuarios/${item.usuario_id}`}> */}
+                    <Link to={`/EditUsuarios/${item.usuario_id}`}>
                       <button style={{ border: "none", backgroundColor: "transparent", cursor: "pointer", padding: "5px" }}>
                         <FaEdit color="#007bff" /> {/* Azul */}
                       </button>
-                    {/* </Link> */}
+                    </Link>
                     <button style={{ border: "none", backgroundColor: "transparent", cursor: "pointer", padding: "5px" }}>
                       <TiUserDelete color="#dc3545" /> {/* Rojo */}
                     </button>
