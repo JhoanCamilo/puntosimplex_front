@@ -27,3 +27,8 @@ export interface producto{
     categoria: string
     activo: boolean
 }
+export interface mesa {
+  id: number;
+  estado: boolean;
+  numero: string;
+}
