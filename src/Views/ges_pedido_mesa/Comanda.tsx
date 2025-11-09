@@ -8,6 +8,8 @@ import { crearPedidoMesa } from "../../services/gesPedidos";
 
 import { type categoria, type producto } from "../../services/utils/models";
 
+import SearchSelect from "../../components/selectors/select2";
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -27,14 +29,14 @@ export default function ComandaView() {
     {
       articulo_id: number;
       descripcion: string;
-      cantidad: number;       // valor numérico para backend
-      cantidadTexto: string;  // valor textual para el input
+      cantidad: number;
+      cantidadTexto: string;
       nota: string;
       precio: number;
     }[]
   >([]);
 
-  // Carga inicial
+  // ✅ Cargar inicial
   useEffect(() => {
     async function fetchAll() {
       const categorias = await getCategorias("", "");
@@ -45,22 +47,31 @@ export default function ComandaView() {
     fetchAll();
   }, []);
 
-  // Filtrar por categoría
+  // ✅ Filtrar por categoría
   useEffect(() => {
     if (!catSelect) {
       setProductosFiltrados([]);
       setProductSelect("");
       return;
     }
+
     const filtro = productosList.filter(
       (p) => String(p.categoria_id) === String(catSelect)
     );
+
     setProductosFiltrados(filtro);
   }, [catSelect, productosList]);
 
-  // Añadir producto
+  // ✅ Opciones para SearchSelect
+  const productOptions = productosFiltrados.map((p) => ({
+    value: p.articulo_id,
+    label: `${p.descripcion} - $${p.precio}`,
+  }));
+
+  // ✅ Agregar producto
   const handleAddProduct = () => {
     if (!productSelect) return;
+
     const prod = productosFiltrados.find(
       (p) => p.articulo_id === Number(productSelect)
     );
@@ -72,7 +83,7 @@ export default function ComandaView() {
       return;
     }
 
-    setItems(prev => [
+    setItems((prev) => [
       ...prev,
       {
         articulo_id: prod.articulo_id,
@@ -83,14 +94,14 @@ export default function ComandaView() {
         precio: prod.precio ?? 0,
       },
     ]);
+
     setProductSelect("");
   };
 
-  // Actualiza cantidad (texto + num)
+  // ✅ Actualizar cantidad
   const actualizarCantidad = (id: number, texto: string) => {
-    // permitir cadena vacía mientras escribe
-    setItems(prev =>
-      prev.map(item =>
+    setItems((prev) =>
+      prev.map((item) =>
         item.articulo_id === id
           ? {
               ...item,
@@ -102,9 +113,8 @@ export default function ComandaView() {
     );
   };
 
-  // Al perder foco, validar cantidad mínima
   const validarCantidadOnBlur = (id: number) => {
-    const it = items.find(i => i.articulo_id === id);
+    const it = items.find((i) => i.articulo_id === id);
     if (!it) return;
     if (it.cantidad < 1) {
       toast.error("La cantidad debe ser mayor a 0");
@@ -112,24 +122,27 @@ export default function ComandaView() {
     }
   };
 
-  // Actualizar nota
+  // ✅ Actualizar nota
   const actualizarNota = (id: number, nota: string) => {
-    setItems(prev => prev.map(it => it.articulo_id === id ? { ...it, nota } : it));
+    setItems((prev) =>
+      prev.map((it) =>
+        it.articulo_id === id ? { ...it, nota } : it
+      )
+    );
   };
 
-  // Eliminar
+  // ✅ Eliminar item
   const eliminarItem = (id: number) => {
-    setItems(prev => prev.filter(i => i.articulo_id !== id));
+    setItems((prev) => prev.filter((i) => i.articulo_id !== id));
   };
 
-  // Registrar pedido (usa tu servicio)
+  // ✅ Registrar pedido
   const handleRegistrarPedido = async () => {
     if (items.length === 0) {
       toast.error("Debes agregar productos antes de continuar.");
       return;
     }
 
-    // validar cantidades > 0
     for (const it of items) {
       if (!it.cantidad || it.cantidad < 1) {
         toast.error("Asegúrate que todas las cantidades sean mayores a 0.");
@@ -137,8 +150,7 @@ export default function ComandaView() {
       }
     }
 
-    // preparar detalles
-    const detalles = items.map(i => ({
+    const detalles = items.map((i) => ({
       articulo_id: i.articulo_id,
       cantidad: i.cantidad,
       nota: i.nota,
@@ -167,6 +179,7 @@ export default function ComandaView() {
           <p className="comandaTitle">Mesa {mesaId ?? "?"}</p>
         </div>
 
+        {/* ✅ Select categoría */}
         <div className="campo">
           <label>Categoría</label>
           <select
@@ -183,99 +196,64 @@ export default function ComandaView() {
           </select>
         </div>
 
+        {/* ✅ Select buscable (SearchSelect) */}
         <div className="campo">
-          <label>Productos</label>
-          <div style={{ display: "flex", gap: 10 }}>
-            <select
-              value={productSelect}
-              onChange={(e) => setProductSelect(e.target.value as any)}
-              className="comandaSelect"
-            >
-              <option value="">Seleccione un producto...</option>
-              {productosFiltrados.map((p) => (
-                <option key={p.articulo_id} value={p.articulo_id}>
-                  {p.descripcion} - ${p.precio}
-                </option>
-              ))}
-            </select>
-            <button
-              className="addButton"
-              onClick={(e) => {
-                e.preventDefault();
-                handleAddProduct();
-              }}
-            >
-              +
-            </button>
-          </div>
+          <SearchSelect
+            label="Productos"
+            options={productOptions}
+            value={productSelect}
+            onChange={(v) => setProductSelect(v as number)}
+            placeholder="Buscar producto..."
+            disabled={productOptions.length === 0}
+          />
+
+          <button className="addButton" onClick={handleAddProduct}>
+            +
+          </button>
         </div>
 
+        {/* ✅ Cards */}
         <div className="listaCards">
           {items.map((item) => (
             <div key={item.articulo_id} className="cardItem">
+              
+              {/* HEADER */}
+              <div className="cardRow cardHeaderRow" style={{ marginBottom: "8px" }}>
+                <span className="cardColProducto">Producto</span>
+                <span className="cardColCantidad">Cant.</span>
+                <span className="cardColSubtotal">Subtotal</span>
+              </div>
 
-  {/* === ENCABEZADO: Producto | Cant. | Subtotal === */}
-  <div className="cardRow cardHeaderRow" style={{ marginBottom: "8px" }}>
-    <span className="cardColProducto">Producto</span>
-    <span className="cardColCantidad">Cant.</span>
-    <span className="cardColSubtotal">Subtotal</span>
-  </div>
+              {/* FILA PRINCIPAL */}
+              <div className="cardRow" style={{ marginBottom: "10px" }}>
+                <span className="cardColProducto">{item.descripcion}</span>
 
-  {/* === FILA PRINCIPAL === */}
-  <div className="cardRow" style={{ marginBottom: "10px" }}>
-    {/* PRODUCTO */}
-    <span className="cardColProducto">
-      {item.descripcion}
-    </span>
+                <input
+                  type="number"
+                  className="inputCantidad cardColCantidad"
+                  value={item.cantidad === 0 ? "" : item.cantidad}
+                  onChange={(e) => actualizarCantidad(item.articulo_id, e.target.value)}
+                  onBlur={() => validarCantidadOnBlur(item.articulo_id)}
+                />
 
-    {/* CANTIDAD (EDITABLE) */}
-    <input
-      type="number"
-      className="inputCantidad cardColCantidad"
-      value={item.cantidad === 0 ? "" : item.cantidad}
-      onChange={(e) => {
-        const val = e.target.value;
+                <span className="cardColSubtotal">
+                  {(item.cantidad * item.precio).toLocaleString("es-CO")}
+                </span>
+              </div>
 
-        if (val === "") {
-          actualizarCantidad(item.articulo_id, 0);
-          return;
-        }
+              {/* NOTAS */}
+              <p className="cardTitulo">Observaciones</p>
+              <textarea
+                className="inputNota"
+                placeholder="Observaciones del producto…"
+                value={item.nota}
+                onChange={(e) => actualizarNota(item.articulo_id, e.target.value)}
+              />
 
-        const num = Number(val);
-        if (!Number.isNaN(num)) actualizarCantidad(item.articulo_id, num);
-      }}
-      onBlur={() => {
-        if (item.cantidad < 1) {
-          toast.error("La cantidad debe ser mayor a 0");
-          actualizarCantidad(item.articulo_id, 1);
-        }
-      }}
-    />
-
-    {/* SUBTOTAL */}
-    <span className="cardColSubtotal">
-      {(item.cantidad * item.precio).toLocaleString("es-CO")}
-    </span>
-  </div>
-
-  {/* === OBSERVACIONES === */}
-  <p className="cardTitulo">Observaciones</p>
-  <textarea
-    className="inputNota"
-    placeholder="Observaciones del producto…"
-    value={item.nota}
-    onChange={(e) => actualizarNota(item.articulo_id, e.target.value)}
-  />
-
-  {/* === BOTÓN ELIMINAR === */}
-  <button
-    className="btnEliminarFull"
-    onClick={() => eliminarItem(item.articulo_id)}
-  >
-    Eliminar
-  </button>
-</div>
-
+              <button className="btnEliminarFull" onClick={() => eliminarItem(item.articulo_id)}>
+                Eliminar
+              </button>
+            </div>
           ))}
         </div>
 

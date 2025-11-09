@@ -74,3 +74,55 @@ export async function crearPedidoMesa({
     };
   }
 }
+
+export async function getPedidoById(pedidoId: number) {
+  const { data, error } = await supabase
+    .from("pedido_enc")
+    .select(`
+      pedido_enc_id,
+      num_mesa,
+      pedido_det(
+        pedido_det_id,
+        articulo_id,
+        cantidad,
+        nota,
+        valor_total,
+        articulo: articulo_id ( descripcion, precio, categoria_id )
+      )
+    `)
+    .eq("pedido_enc_id", pedidoId)
+    .maybeSingle();
+
+  if (error) {
+    return { status: 400, message: "Error consultando pedido" };
+  }
+
+  if (!data) {
+    return { status: 404, message: "Pedido no encontrado" };
+  }
+
+  return { status: 200, data };
+}
+
+
+export async function updatePedido(pedidoId: number, detalles: any[]) {
+  try {
+    await supabase.from("pedido_det").delete().eq("pedido_enc_id", pedidoId);
+
+    const nuevosDetalles = detalles.map(d => ({
+      pedido_enc_id: pedidoId,
+      articulo_id: d.articulo_id,
+      cantidad: d.cantidad,
+      nota: d.nota,
+      valor_total: d.cantidad * d.precio
+    }));
+
+    const { error } = await supabase.from("pedido_det").insert(nuevosDetalles);
+
+    if (error) return { status: 400, message: "No se pudo actualizar el pedido" };
+
+    return { status: 200, message: "Pedido actualizado correctamente" };
+  } catch (err) {
+    return { status: 500, message: "Error interno al actualizar" };
+  }
+}

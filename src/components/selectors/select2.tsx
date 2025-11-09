@@ -47,7 +47,7 @@ export default function SearchSelect({
   const selectedLabel = options.find((o) => o.value === value)?.label || "";
 
   return (
-    <div style={{ marginTop: 10 }} ref={wrapperRef}>
+    <div style={{ marginTop: 10, marginBottom: 10 }} ref={wrapperRef}>
       {label && (
         <label style={{ display: "block", marginBottom: 5 }}>{label}</label>
       )}

@@ -22,13 +22,13 @@ import CategoriaEditar from "./Views/ges_Inventario/ges_categoriasx/CategoriaEdi
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ComandaEditView from "./Views/ges_pedido_mesa/EditComanda";
 
 export default function App() {
   return (
     <AuthProvider>
-
       {/* ✅ ToastContainer siempre suelto */}
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         theme="colored"
@@ -137,6 +137,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/ComandaEditar/:id"
+          element={
+            <ProtectedRoute role="Mesero">
+              <ComandaEditView />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Rutas Cajero */}
         <Route
@@ -154,4 +162,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

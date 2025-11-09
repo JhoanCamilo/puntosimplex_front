@@ -90,7 +90,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-/* Modal con botón "Cancelar" en todos los modos */
+/* ✅ Modal con lógica de los 3 modos */
 function ModalMesa({ mesa, modo, onConfirm, onLiberar, onClose }: any) {
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
@@ -100,68 +100,63 @@ function ModalMesa({ mesa, modo, onConfirm, onLiberar, onClose }: any) {
         {modo === "no_ocupada" && (
           <>
             <p>¿Iniciar pedido en esta mesa?</p>
-            <div>
-              <button
-                style={{ ...styles.modalButton, ...styles.btnPrimary }}
-                onClick={onConfirm}
-              >
-                Iniciar pedido
-              </button>
-              <button
-                style={{ ...styles.modalButton, ...styles.btnSecondary }}
-                onClick={onClose}
-              >
-                Cancelar
-              </button>
-            </div>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnPrimary }}
+              onClick={onConfirm}
+            >
+              Iniciar pedido
+            </button>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnSecondary }}
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
           </>
         )}
 
         {modo === "ocupada_sin_pedido" && (
           <>
-            <p>Seleccione una acción para esta mesa:</p>
-            <div>
-              <button
-                style={{ ...styles.modalButton, ...styles.btnPrimary }}
-                onClick={onConfirm}
-              >
-                Iniciar pedido
-              </button>
+            <p>Opciones para esta mesa:</p>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnPrimary }}
+              onClick={onConfirm}
+            >
+              Iniciar pedido
+            </button>
 
-              <button
-                style={{ ...styles.modalButton, ...styles.btnDanger }}
-                onClick={onLiberar}
-              >
-                Liberar mesa
-              </button>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnDanger }}
+              onClick={onLiberar}
+            >
+              Liberar mesa
+            </button>
 
-              <button
-                style={{ ...styles.modalButton, ...styles.btnSecondary }}
-                onClick={onClose}
-              >
-                Cancelar
-              </button>
-            </div>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnSecondary }}
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
           </>
         )}
 
         {modo === "ocupada_con_pedido" && (
           <>
             <p>Esta mesa tiene un pedido activo.</p>
-            <div>
-              <button
-                style={{ ...styles.modalButton, ...styles.btnPrimary }}
-                onClick={onConfirm}
-              >
-                Editar pedido
-              </button>
-              <button
-                style={{ ...styles.modalButton, ...styles.btnSecondary }}
-                onClick={onClose}
-              >
-                Cancelar
-              </button>
-            </div>
+            <button
+              style={{ ...styles.modalButton, ...styles.btnPrimary }}
+              onClick={onConfirm}
+            >
+              Editar pedido
+            </button>
+
+            <button
+              style={{ ...styles.modalButton, ...styles.btnSecondary }}
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
           </>
         )}
       </div>
@@ -175,7 +170,6 @@ export default function WaiterView() {
   const [mesas, setMesas] = useState<mesa[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // mapa { numeroMesa: true }
   const [mesasConPedido, setMesasConPedido] = useState<Record<number, boolean>>(
     {}
   );
@@ -185,7 +179,7 @@ export default function WaiterView() {
     "no_ocupada" | "ocupada_sin_pedido" | "ocupada_con_pedido" | null
   >(null);
 
-  /* Cargar mesas */
+  /* ✅ Cargar mesas */
   const cargarMesas = async () => {
     try {
       setLoading(true);
@@ -198,20 +192,18 @@ export default function WaiterView() {
     }
   };
 
-  /* Cargar pedidos por mesa -> normalizo a Number */
+  /* ✅ Cargar pedidos por mesa (normalizado) */
   const cargarPedidosMesas = async () => {
     const { data, error } = await supabase
       .from("pedido_enc")
       .select("num_mesa");
 
-    if (error || !data) {
-      console.error("Error cargando pedidos:", error);
-      return;
-    }
+    if (error || !data) return;
 
     const estado: Record<number, boolean> = {};
+
     data.forEach((p: any) => {
-      const n = Number(p.num_mesa);
+      const n = Number(String(p.num_mesa).replace(/\D+/g, ""));
       if (!Number.isNaN(n)) estado[n] = true;
     });
 
@@ -219,55 +211,53 @@ export default function WaiterView() {
   };
 
   useEffect(() => {
-    // cargar ambas listas en paralelo
     cargarMesas();
     cargarPedidosMesas();
   }, []);
 
-  /* Click en mesa: decido modo según estado y existencia de pedido */
+  /* ✅ Click en mesa */
   const handleMesaClick = (mesa: mesa) => {
-    const numeroMesa = Number(mesa.numero);
-    const tienePedido = mesasConPedido[numeroMesa] === true;
+    const numMesa = Number(String(mesa.numero).replace(/\D+/g, ""));
+    const tienePedido = mesasConPedido[numMesa] === true;
 
     if (!mesa.estado) {
       setModoMesa("no_ocupada");
+    } else if (tienePedido) {
+      setModoMesa("ocupada_con_pedido");
     } else {
-      setModoMesa(tienePedido ? "ocupada_con_pedido" : "ocupada_sin_pedido");
+      setModoMesa("ocupada_sin_pedido");
     }
 
     setMesaSeleccionada(mesa);
   };
 
-  /* Iniciar o editar: si no está ocupada la ocupamos; luego navegamos */
+  /* ✅ Iniciar pedido o editar pedido */
   const iniciarOEditar = async () => {
     if (!mesaSeleccionada) return;
 
-    // si no está ocupada, la ocupamos primero
     if (!mesaSeleccionada.estado) {
       try {
         await ocuparMesa(mesaSeleccionada);
-        // refrescar mesas para reflejar estado
         await cargarMesas();
-      } catch (err) {
+      } catch {
         toast.error("No se pudo ocupar la mesa");
         return;
       }
     }
 
-    // navegar a la comanda (crear o editar según exista pedido en backend)
-    navigate(`/Comanda/${mesaSeleccionada.id}`);
+    navigate(`/ComandaEditar/${mesaSeleccionada.id}`);
   };
 
-  /* Liberar mesa (solo si no hay pedido) */
+  /* ✅ Liberar mesa */
   const liberar = async () => {
     if (!mesaSeleccionada) return;
+
     try {
       await liberarMesa(mesaSeleccionada.id);
       toast.success(`Mesa ${mesaSeleccionada.numero} liberada`);
-      // refrescar listas
       await cargarMesas();
       await cargarPedidosMesas();
-    } catch (err) {
+    } catch {
       toast.error("No se pudo liberar la mesa");
     } finally {
       setMesaSeleccionada(null);
@@ -297,6 +287,9 @@ export default function WaiterView() {
             ...(mesa.estado ? styles.mesaOcupada : styles.mesaDisponible),
           };
 
+          const numMesa = Number(String(mesa.numero).replace(/\D+/g, ""));
+          const tienePedido = mesasConPedido[numMesa];
+
           return (
             <div
               key={mesa.id}
@@ -305,7 +298,7 @@ export default function WaiterView() {
               title={
                 !mesa.estado
                   ? `Iniciar pedido - ${mesa.numero}`
-                  : mesasConPedido[Number(mesa.numero)]
+                  : tienePedido
                   ? `Editar pedido - ${mesa.numero}`
                   : `Mesa ocupada - ${mesa.numero}`
               }
@@ -315,6 +308,7 @@ export default function WaiterView() {
               ) : (
                 <MdOutlineTableRestaurant fontSize={80} />
               )}
+
               <span style={styles.mesaTexto}>{mesa.numero}</span>
             </div>
           );
@@ -326,13 +320,11 @@ export default function WaiterView() {
           mesa={mesaSeleccionada}
           modo={modoMesa}
           onConfirm={() => {
-            // cerrar modal y ejecutar
             setMesaSeleccionada(null);
             setModoMesa(null);
             iniciarOEditar();
           }}
           onLiberar={() => {
-            // cerrar modal y liberar
             setMesaSeleccionada(null);
             setModoMesa(null);
             liberar();
