@@ -2,9 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import LoginView from "./Views/Login";
 import AdminView from "./Views/Home_Admin";
-import WaiterView from "./Views/Home_Waiter";
 import CashierView from "./Views/Home_Cashier";
 import ProtectedRoute from "./services/ProtectedRoute";
+
+import WaiterView from "./Views/Home_Waiter";
+import ComandaView from "./Views/ges_pedido_mesa/Comanda";
 
 import UsuariosIndex from "./Views/ges_usuarios/UsuariosIndex";
 import CreateUsers from "./Views/ges_usuarios/UsuariosCreate";
@@ -124,6 +126,14 @@ export default function App() {
           element={
             <ProtectedRoute role="Mesero">
               <WaiterView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Comanda/:id"
+          element={
+            <ProtectedRoute role="Mesero">
+              <ComandaView />
             </ProtectedRoute>
           }
         />

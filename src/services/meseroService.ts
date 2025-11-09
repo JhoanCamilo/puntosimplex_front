@@ -18,10 +18,24 @@ export const getMesas = async (): Promise<mesa[]> => {
   return data || [];
 };
 
+export async function mesaTienePedido(mesaId: number) {
+  const { data, error } = await supabase
+    .from("pedido_enc")
+    .select("pedido_enc_id")
+    .eq("num_mesa", mesaId)
+    .order("pedido_enc_id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-export const ocuparMesa = async (mesa: mesa) => { 
-  
+  if (error) {
+    console.error("Error consultando pedido:", error);
+    return null;
+  }
 
+  return data ? data.pedido_enc_id : null;
+}
+
+export const ocuparMesa = async (mesa: mesa) => {
   const { error: errorMesa } = await supabase
     .from("mesa")
     .update({ estado: true }) 

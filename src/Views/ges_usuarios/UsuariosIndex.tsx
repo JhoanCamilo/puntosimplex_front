@@ -79,7 +79,7 @@ export default function UsuariosIndex() {
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                style={{ width: "200px", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", height: "38px" }}
+                style={{ width: "200px", padding: "8px", border: "1px solid #ccc", borderRadius: "4px", height: "20px" }}
               />
             </div>
 

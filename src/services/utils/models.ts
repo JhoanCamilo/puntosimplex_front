@@ -20,6 +20,7 @@ export interface categoria{
     activo: boolean
 }
 export interface producto{
+    categoria_id: number
     articulo_id: number
     descripcion: string
     valor_unitario: number
@@ -31,4 +32,20 @@ export interface mesa {
   id: number;
   estado: boolean;
   numero: string;
+}
+export interface pedido_enc{
+    pedido_enc_id: number
+    domicilio: boolean
+    titular: string
+    num_mesa: number
+    direccion_entrega: string
+    fecha: string
+}
+export interface pedido_det{
+    pedido_det_id: number
+    pedido_enc_id: number
+    articulo_id: number
+    cantidad: number
+    nota: string
+    valor_total: number
 }

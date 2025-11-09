@@ -35,3 +35,13 @@
     text-decoration: none;
     color: black;
 }
+
+/*? Return buttons */
+.returnBtn{
+    width: 50px;
+    height: 30px;
+    background-color: #ffce49;
+    border: none;
+    border-radius: 5px;
+    font-size: 30px;
+}
