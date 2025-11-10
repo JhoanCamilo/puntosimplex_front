@@ -196,15 +196,17 @@ export default function WaiterView() {
   const cargarPedidosMesas = async () => {
     const { data, error } = await supabase
       .from("pedido_enc")
-      .select("num_mesa");
+      .select("pedido_enc_id, num_mesa");
 
     if (error || !data) return;
 
-    const estado: Record<number, boolean> = {};
+    const estado: Record<number, number> = {};
 
     data.forEach((p: any) => {
-      const n = Number(String(p.num_mesa).replace(/\D+/g, ""));
-      if (!Number.isNaN(n)) estado[n] = true;
+      const mesaNum = Number(String(p.num_mesa).replace(/\D+/g, ""));
+      if (!Number.isNaN(mesaNum)) {
+        estado[mesaNum] = p.pedido_enc_id; // ✅ Guarda el ID del pedido
+      }
     });
 
     setMesasConPedido(estado);
@@ -218,7 +220,8 @@ export default function WaiterView() {
   /* ✅ Click en mesa */
   const handleMesaClick = (mesa: mesa) => {
     const numMesa = Number(String(mesa.numero).replace(/\D+/g, ""));
-    const tienePedido = mesasConPedido[numMesa] === true;
+    const pedidoId = mesasConPedido[numMesa];
+    const tienePedido = Boolean(pedidoId);
 
     if (!mesa.estado) {
       setModoMesa("no_ocupada");
@@ -235,6 +238,10 @@ export default function WaiterView() {
   const iniciarOEditar = async () => {
     if (!mesaSeleccionada) return;
 
+    const numMesa = Number(String(mesaSeleccionada.numero).replace(/\D+/g, ""));
+    const pedidoId = mesasConPedido[numMesa];
+
+    // Si la mesa NO está ocupada, primero se ocupa
     if (!mesaSeleccionada.estado) {
       try {
         await ocuparMesa(mesaSeleccionada);
@@ -245,7 +252,14 @@ export default function WaiterView() {
       }
     }
 
-    navigate(`/ComandaEditar/${mesaSeleccionada.id}`);
+    // ✅ Si tiene pedido → EDITAR
+    if (pedidoId) {
+      navigate(`/ComandaEditar/${pedidoId}`);
+      return;
+    }
+
+    // ✅ Si NO tiene → CREAR
+    navigate(`/Comanda/${mesaSeleccionada.id}`);
   };
 
   /* ✅ Liberar mesa */
