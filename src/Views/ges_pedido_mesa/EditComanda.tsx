@@ -9,7 +9,11 @@ import SearchSelect from "../../components/selectors/select2";
 
 import { getCategorias } from "../../services/gesCategorias";
 import { getArticulos } from "../../services/gesArticulos";
-import { getPedidoById, updatePedido } from "../../services/gesPedidos";
+import {
+  getPedidoById,
+  updatePedido,
+  eliminarDetallePedido,
+} from "../../services/gesPedidos";
 
 import "../Styles/ComandaView.css";
 
@@ -29,6 +33,7 @@ export default function ComandaEditView() {
 
   const [items, setItems] = useState<
     {
+      pedido_det_id?: number;
       articulo_id: number;
       descripcion: string;
       cantidad: number;
@@ -43,6 +48,7 @@ export default function ComandaEditView() {
   ================================================================== */
 
   useEffect(() => {
+    toast.info("⚡ Renderizando Editar Comanda");
     const cargarTodo = async () => {
       const cats = await getCategorias("", "");
       const prods = await getArticulos("", "", "");
@@ -61,8 +67,9 @@ export default function ComandaEditView() {
 
       const det = pedidoRes.data.pedido_det;
 
-      // Mapear items ya existentes
+      // Mapear items — AHORA INCLUYE pedido_det_id ✅
       const mapped = det.map((d: any) => ({
+        pedido_det_id: d.pedido_det_id,
         articulo_id: d.articulo_id,
         descripcion: d.articulo.descripcion,
         cantidad: d.cantidad,
@@ -78,9 +85,9 @@ export default function ComandaEditView() {
     cargarTodo();
   }, []);
 
-  /* ================================================================
-     ✅ FILTRAR PRODUCTOS POR CATEGORÍA
-  ================================================================== */
+  /* ==================================================================
+     ✅ FILTRADO DE PRODUCTOS POR CATEGORÍA
+  ===================================================================== */
 
   useEffect(() => {
     if (!categoriaId) {
@@ -160,18 +167,51 @@ export default function ComandaEditView() {
 
   const actualizarNota = (id: number, nota: string) => {
     setItems((prev) =>
-      prev.map((item) =>
-        item.articulo_id === id ? { ...item, nota } : item
-      )
+      prev.map((item) => (item.articulo_id === id ? { ...item, nota } : item))
     );
   };
 
   /* ================================================================
-     ✅ ELIMINAR PRODUCTO
+     ✅ ELIMINAR PRODUCTO (NUEVO O EXISTENTE)
   ================================================================== */
 
-  const eliminarItem = (id: number) => {
-    setItems((prev) => prev.filter((i) => i.articulo_id !== id));
+  const eliminarItem = async (item) => {
+    console.log("🟦 Eliminando item:", item);
+
+    if (!item) {
+      console.error("❌ Error: item es undefined");
+      toast.error("Error interno");
+      return;
+    }
+
+    // ✅ Caso: solo está en UI
+    if (!item.pedido_det_id) {
+      toast.info("Producto removido");
+      setItems((prev) =>
+        prev.filter((i) => i.articulo_id !== item.articulo_id)
+      );
+      return;
+    }
+
+    try {
+      const { error } = await eliminarDetallePedido(item.pedido_det_id);
+
+      if (error) {
+        console.error("Supabase error:", error);
+        toast.error("No se pudo eliminar el producto");
+        return;
+      }
+
+      toast.success("Producto eliminado");
+      alert("Producto eliminado")
+
+      setItems((prev) =>
+        prev.filter((i) => i.articulo_id !== item.articulo_id)
+      );
+    } catch (err) {
+      console.error("Error inesperado:", err);
+      toast.error("Error inesperado al eliminar");
+    }
   };
 
   /* ================================================================
@@ -182,14 +222,6 @@ export default function ComandaEditView() {
     if (items.length === 0) {
       toast.error("El pedido no puede quedar vacío.");
       return;
-    }
-
-    // validar cantidades
-    for (const it of items) {
-      if (it.cantidad < 1) {
-        toast.error("Hay cantidades inválidas.");
-        return;
-      }
     }
 
     const detalles = items.map((i) => ({
@@ -229,7 +261,7 @@ export default function ComandaEditView() {
       <div className="comandaView">
         <div className="comandaHeader">
           <ReturnButton />
-          <p className="comandaTitle">Editar Pedido #{pedidoId}</p>
+          <p className="comandaTitle">Editar Pedido</p>
         </div>
 
         {/* Selección de categoría */}
@@ -269,14 +301,15 @@ export default function ComandaEditView() {
         <div className="listaCards">
           {items.map((item) => (
             <div key={item.articulo_id} className="cardItem">
-              {/* Encabezado */}
-              <div className="cardRow cardHeaderRow" style={{ marginBottom: "8px" }}>
+              <div
+                className="cardRow cardHeaderRow"
+                style={{ marginBottom: "8px" }}
+              >
                 <span className="cardColProducto">Producto</span>
                 <span className="cardColCantidad">Cant.</span>
                 <span className="cardColSubtotal">Subtotal</span>
               </div>
 
-              {/* Fila principal */}
               <div className="cardRow" style={{ marginBottom: "10px" }}>
                 <span className="cardColProducto">{item.descripcion}</span>
 
@@ -284,7 +317,9 @@ export default function ComandaEditView() {
                   type="number"
                   className="inputCantidad cardColCantidad"
                   value={item.cantidadTexto}
-                  onChange={(e) => actualizarCantidad(item.articulo_id, e.target.value)}
+                  onChange={(e) =>
+                    actualizarCantidad(item.articulo_id, e.target.value)
+                  }
                   onBlur={() => validarCantidadBlur(item.articulo_id)}
                 />
 
@@ -297,13 +332,15 @@ export default function ComandaEditView() {
               <textarea
                 className="inputNota"
                 value={item.nota}
-                onChange={(e) => actualizarNota(item.articulo_id, e.target.value)}
+                onChange={(e) =>
+                  actualizarNota(item.articulo_id, e.target.value)
+                }
                 placeholder="Observaciones del producto…"
               />
 
               <button
                 className="btnEliminarFull"
-                onClick={() => eliminarItem(item.articulo_id)}
+                onClick={() => eliminarItem(item)}
               >
                 Eliminar
               </button>

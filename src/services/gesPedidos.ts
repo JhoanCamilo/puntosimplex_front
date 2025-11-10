@@ -126,3 +126,12 @@ export async function updatePedido(pedidoId: number, detalles: any[]) {
     return { status: 500, message: "Error interno al actualizar" };
   }
 }
+
+export async function eliminarDetallePedido(detalleId: number) {
+  const { error } = await supabase
+    .from("pedido_det")
+    .delete()
+    .eq("pedido_det_id", detalleId);
+
+  return { error };
+}
