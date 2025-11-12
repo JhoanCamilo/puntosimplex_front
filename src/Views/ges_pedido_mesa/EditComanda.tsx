@@ -177,15 +177,13 @@ export default function ComandaEditView() {
    ================================================================== */
 
   const eliminarItem = async (item: any) => {
-    
-   
     const confirmacion = window.confirm(
       `¿Está seguro que desea eliminar "${item.descripcion}" del pedido?`
     );
 
     if (!confirmacion) {
       return;
-
+    }
 
     console.log("🟦 Eliminando item:", item);
 
@@ -195,23 +193,19 @@ export default function ComandaEditView() {
       return;
     }
 
-    
     // --- Lógica HU_PedidosMesa_004 ---
-    // 4. Al eliminar todos los items de un pedido, el pedido debe eliminarse...
     if (items.length === 1 && numMesa) {
       toast.warn("Eliminando último item. Liberando mesa...");
       try {
         await eliminarPedidoCompleto(Number(pedidoId), numMesa);
         toast.success("Pedido eliminado y mesa liberada.");
-        navigate("/Mesero"); // Volver al mapa de mesas
+        navigate("/Mesero");
       } catch (e: any) {
         toast.error(e.message || "No se pudo eliminar el pedido completo.");
       }
-      return; // Detenemos la ejecución
+      return;
     }
-    // --- FIN Lógica ---
 
-    // ✅ Caso: solo está en UI (no tiene ID de la BD)
     if (!item.pedido_det_id) {
       toast.info("Producto removido");
       setItems((prev) =>
@@ -220,7 +214,6 @@ export default function ComandaEditView() {
       return;
     }
 
-    // ✅ Caso: El item está en la BD
     try {
       const { error } = await eliminarDetallePedido(item.pedido_det_id);
 
@@ -231,8 +224,6 @@ export default function ComandaEditView() {
       }
 
       toast.success("Producto eliminado");
-      // alert("Producto eliminado") // (Ya quitamos esto)
-
       setItems((prev) =>
         prev.filter((i) => i.articulo_id !== item.articulo_id)
       );
@@ -247,17 +238,16 @@ export default function ComandaEditView() {
    ================================================================== */
 
   const guardarCambios = async () => {
-    
     // --- Lógica HU_PedidosMesa_004 ---
     // ¿El usuario borró todos los items y le dio "Guardar"?
     if (items.length === 0 && numMesa) {
-      toast.warn("El pedido está vacío. Liberando mesa...");
+      alert("El pedido está vacío. Liberando mesa...");
       try {
         await eliminarPedidoCompleto(Number(pedidoId), numMesa);
         toast.success("Pedido eliminado y mesa liberada.");
         navigate("/Mesero"); // Volver al mapa de mesas
       } catch (e: any) {
-        toast.error(e.message || "No se pudo eliminar el pedido completo.");
+        alert(e.message || "No se pudo eliminar el pedido completo.");
       }
       return; // Detenemos la ejecución
     }
@@ -274,10 +264,10 @@ export default function ComandaEditView() {
     const resp = await updatePedido(Number(pedidoId), detalles);
 
     if (resp.status === 200) {
-      toast.success("✅ Pedido actualizado");
+      alert("✅ Pedido actualizado");
       navigate("/Mesero");
     } else {
-      toast.error(resp.message);
+      alert(resp.message);
     }
   };
 
