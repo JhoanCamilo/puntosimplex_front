@@ -13,6 +13,7 @@ import {
   getPedidoById,
   updatePedido,
   eliminarDetallePedido,
+  eliminarPedidoCompleto,
 } from "../../services/gesPedidos";
 
 import "../Styles/ComandaView.css";
@@ -22,6 +23,8 @@ export default function ComandaEditView() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+
+  const [numMesa, setNumMesa] = useState<number | null>(null);
 
   const [categorias, setCategorias] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -44,8 +47,8 @@ export default function ComandaEditView() {
   >([]);
 
   /* ================================================================
-     ✅ CARGA INICIAL: categorías, productos y pedido
-  ================================================================== */
+     ✅ CARGA INICIAL
+   ================================================================== */
 
   useEffect(() => {
     toast.info("⚡ Renderizando Editar Comanda");
@@ -56,7 +59,6 @@ export default function ComandaEditView() {
       setCategorias(cats);
       setProductos(prods);
 
-      // ===== Cargar pedido =====
       const pedidoRes = await getPedidoById(Number(pedidoId));
 
       if (pedidoRes.status !== 200) {
@@ -65,9 +67,11 @@ export default function ComandaEditView() {
         return;
       }
 
+      setNumMesa(pedidoRes.data.num_mesa);
+      
       const det = pedidoRes.data.pedido_det;
 
-      // Mapear items — AHORA INCLUYE pedido_det_id ✅
+      // Mapear items
       const mapped = det.map((d: any) => ({
         pedido_det_id: d.pedido_det_id,
         articulo_id: d.articulo_id,
@@ -83,11 +87,11 @@ export default function ComandaEditView() {
     };
 
     cargarTodo();
-  }, []);
+  }, [pedidoId, navigate]); // Añadidas dependencias
 
   /* ==================================================================
-     ✅ FILTRADO DE PRODUCTOS POR CATEGORÍA
-  ===================================================================== */
+     ✅ FILTRADO (Sin cambios)
+   ===================================================================== */
 
   useEffect(() => {
     if (!categoriaId) {
@@ -101,8 +105,8 @@ export default function ComandaEditView() {
   }, [categoriaId, productos]);
 
   /* ================================================================
-     ✅ AGREGAR PRODUCTO NUEVO AL PEDIDO
-  ================================================================== */
+     ✅ AGREGAR PRODUCTO (Sin cambios)
+   ================================================================== */
 
   const agregarProducto = () => {
     if (!productoSeleccionado) return;
@@ -134,8 +138,8 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ ACTUALIZAR CANTIDAD
-  ================================================================== */
+     ✅ ACTUALIZAR CANTIDAD (Sin cambios)
+   ================================================================== */
 
   const actualizarCantidad = (id: number, texto: string) => {
     setItems((prev) =>
@@ -162,8 +166,8 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ ACTUALIZAR NOTA
-  ================================================================== */
+     ✅ ACTUALIZAR NOTA (Sin cambios)
+   ================================================================== */
 
   const actualizarNota = (id: number, nota: string) => {
     setItems((prev) =>
@@ -172,8 +176,8 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ ELIMINAR PRODUCTO (NUEVO O EXISTENTE)
-  ================================================================== */
+     ✅ ELIMINAR PRODUCTO (¡LÓGICA HU_PedidosMesa_004 AÑADIDA!)
+   ================================================================== */
 
   const eliminarItem = async (item) => {
     console.log("🟦 Eliminando item:", item);
@@ -184,7 +188,21 @@ export default function ComandaEditView() {
       return;
     }
 
-    // ✅ Caso: solo está en UI
+   
+    if (items.length === 1 && numMesa) {
+      toast.warn("Eliminando último item. Liberando mesa...");
+      try {
+        await eliminarPedidoCompleto(Number(pedidoId), numMesa);
+        toast.success("Pedido eliminado y mesa liberada.");
+        navigate("/Mesero"); 
+      } catch (e: any) {
+        toast.error(e.message || "No se pudo eliminar el pedido completo.");
+      }
+      return; 
+    }
+    
+
+    // ✅ Caso: solo está en UI (no tiene ID de la BD)
     if (!item.pedido_det_id) {
       toast.info("Producto removido");
       setItems((prev) =>
@@ -193,6 +211,7 @@ export default function ComandaEditView() {
       return;
     }
 
+    // ✅ Caso: El item está en la BD
     try {
       const { error } = await eliminarDetallePedido(item.pedido_det_id);
 
@@ -203,7 +222,6 @@ export default function ComandaEditView() {
       }
 
       toast.success("Producto eliminado");
-      alert("Producto eliminado")
 
       setItems((prev) =>
         prev.filter((i) => i.articulo_id !== item.articulo_id)
@@ -215,15 +233,27 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ GUARDAR CAMBIOS
-  ================================================================== */
+     ✅ GUARDAR CAMBIOS (¡LÓGICA HU_PedidosMesa_004 AÑADIDA!)
+   ================================================================== */
 
   const guardarCambios = async () => {
-    if (items.length === 0) {
-      toast.error("El pedido no puede quedar vacío.");
-      return;
+    
+    // --- ¡NUEVO! Lógica HU_PedidosMesa_004 ---
+    // ¿El usuario borró todos los items y le dio "Guardar"?
+    if (items.length === 0 && numMesa) {
+      toast.warn("El pedido está vacío. Liberando mesa...");
+      try {
+        await eliminarPedidoCompleto(Number(pedidoId), numMesa);
+        toast.success("Pedido eliminado y mesa liberada.");
+        navigate("/Mesero"); // Volver al mapa de mesas
+      } catch (e: any) {
+        toast.error(e.message || "No se pudo eliminar el pedido completo.");
+      }
+      return; // Detenemos la ejecución
     }
+    // --- FIN Lógica ---
 
+    // Lógica original de guardar cambios
     const detalles = items.map((i) => ({
       articulo_id: i.articulo_id,
       cantidad: i.cantidad,
@@ -243,7 +273,7 @@ export default function ComandaEditView() {
 
   /* ================================================================
      ✅ RENDER
-  ================================================================== */
+   ================================================================== */
 
   if (loading) {
     return (

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { liberarMesa } from "./meseroService";
 
 const url = import.meta.env.VITE_SUPABASE_URL!;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY!;
@@ -134,4 +135,38 @@ export async function eliminarDetallePedido(detalleId: number) {
     .eq("pedido_det_id", detalleId);
 
   return { error };
+}
+
+export async function eliminarPedidoCompleto(pedidoId: number, mesaId: number) {
+  try {
+    
+   
+    const { error: errorDet } = await supabase
+      .from("pedido_det")
+      .delete()
+      .eq("pedido_enc_id", pedidoId);
+
+    if (errorDet) {
+      console.error("Error al eliminar pedido_det:", errorDet);
+      throw new Error("Error al borrar los items del pedido.");
+    }
+
+    const { error: errorEnc } = await supabase
+      .from("pedido_enc")
+      .delete()
+      .eq("pedido_enc_id", pedidoId);
+
+    if (errorEnc) {
+      console.error("Error al eliminar pedido_enc:", errorEnc);
+      throw new Error("Error al borrar el pedido principal.");
+    }
+
+    await liberarMesa(mesaId);
+
+    return { status: 200, message: "Pedido eliminado y mesa liberada." };
+  
+  } catch (error) {
+    console.error("Error en eliminarPedidoCompleto:", error);
+    return { status: 500, message: "Error al limpiar el pedido." };
+  }
 }
