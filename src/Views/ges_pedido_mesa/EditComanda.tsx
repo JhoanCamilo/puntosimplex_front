@@ -23,7 +23,6 @@ export default function ComandaEditView() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-
   const [numMesa, setNumMesa] = useState<number | null>(null);
 
   const [categorias, setCategorias] = useState([]);
@@ -51,13 +50,13 @@ export default function ComandaEditView() {
    ================================================================== */
 
   useEffect(() => {
-    toast.info("⚡ Renderizando Editar Comanda");
+    // toast.info("⚡ Renderizando Editar Comanda"); // Opcional: puede ser molesto
     const cargarTodo = async () => {
-      const cats = await getCategorias("", "");
-      const prods = await getArticulos("", "", "");
+      const cats: any = await getCategorias("", "");
+      const prods: any = await getArticulos("", "", "");
 
-      setCategorias(cats);
-      setProductos(prods);
+      setCategorias(cats as any);
+      setProductos(prods as any);
 
       const pedidoRes = await getPedidoById(Number(pedidoId));
 
@@ -68,10 +67,8 @@ export default function ComandaEditView() {
       }
 
       setNumMesa(pedidoRes.data.num_mesa);
-      
       const det = pedidoRes.data.pedido_det;
 
-      // Mapear items
       const mapped = det.map((d: any) => ({
         pedido_det_id: d.pedido_det_id,
         articulo_id: d.articulo_id,
@@ -87,7 +84,7 @@ export default function ComandaEditView() {
     };
 
     cargarTodo();
-  }, [pedidoId, navigate]); // Añadidas dependencias
+  }, [pedidoId, navigate]);
 
   /* ==================================================================
      ✅ FILTRADO (Sin cambios)
@@ -99,9 +96,9 @@ export default function ComandaEditView() {
       return;
     }
     const filtro = productos.filter(
-      (x) => String(x.categoria_id) === String(categoriaId)
+      (x: any) => String(x.categoria_id) === String(categoriaId)
     );
-    setProductosFiltrados(filtro);
+    setProductosFiltrados(filtro as any);
   }, [categoriaId, productos]);
 
   /* ================================================================
@@ -111,7 +108,7 @@ export default function ComandaEditView() {
   const agregarProducto = () => {
     if (!productoSeleccionado) return;
 
-    const prod = productosFiltrados.find(
+    const prod: any = productosFiltrados.find(
       (p: any) => p.articulo_id === Number(productoSeleccionado)
     );
     if (!prod) return;
@@ -176,10 +173,20 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ ELIMINAR PRODUCTO (¡LÓGICA HU_PedidosMesa_004 AÑADIDA!)
+     ✅ ELIMINAR PRODUCTO (¡CON ALERTA DE CONFIRMACIÓN!)
    ================================================================== */
 
-  const eliminarItem = async (item) => {
+  const eliminarItem = async (item: any) => {
+    
+   
+    const confirmacion = window.confirm(
+      `¿Está seguro que desea eliminar "${item.descripcion}" del pedido?`
+    );
+
+    if (!confirmacion) {
+      return;
+
+
     console.log("🟦 Eliminando item:", item);
 
     if (!item) {
@@ -188,19 +195,21 @@ export default function ComandaEditView() {
       return;
     }
 
-   
+    
+    // --- Lógica HU_PedidosMesa_004 ---
+    // 4. Al eliminar todos los items de un pedido, el pedido debe eliminarse...
     if (items.length === 1 && numMesa) {
       toast.warn("Eliminando último item. Liberando mesa...");
       try {
         await eliminarPedidoCompleto(Number(pedidoId), numMesa);
         toast.success("Pedido eliminado y mesa liberada.");
-        navigate("/Mesero"); 
+        navigate("/Mesero"); // Volver al mapa de mesas
       } catch (e: any) {
         toast.error(e.message || "No se pudo eliminar el pedido completo.");
       }
-      return; 
+      return; // Detenemos la ejecución
     }
-    
+    // --- FIN Lógica ---
 
     // ✅ Caso: solo está en UI (no tiene ID de la BD)
     if (!item.pedido_det_id) {
@@ -222,6 +231,7 @@ export default function ComandaEditView() {
       }
 
       toast.success("Producto eliminado");
+      // alert("Producto eliminado") // (Ya quitamos esto)
 
       setItems((prev) =>
         prev.filter((i) => i.articulo_id !== item.articulo_id)
@@ -233,12 +243,12 @@ export default function ComandaEditView() {
   };
 
   /* ================================================================
-     ✅ GUARDAR CAMBIOS (¡LÓGICA HU_PedidosMesa_004 AÑADIDA!)
+     ✅ GUARDAR CAMBIOS (Lógica HU_PedidosMesa_004)
    ================================================================== */
 
   const guardarCambios = async () => {
     
-    // --- ¡NUEVO! Lógica HU_PedidosMesa_004 ---
+    // --- Lógica HU_PedidosMesa_004 ---
     // ¿El usuario borró todos los items y le dio "Guardar"?
     if (items.length === 0 && numMesa) {
       toast.warn("El pedido está vacío. Liberando mesa...");
@@ -315,7 +325,7 @@ export default function ComandaEditView() {
         <SearchSelect
           label="Producto"
           value={productoSeleccionado}
-          onChange={(v) => setProductoSeleccionado(v as number)}
+          onChange={(v: any) => setProductoSeleccionado(v as number)}
           options={productosFiltrados.map((p: any) => ({
             value: p.articulo_id,
             label: `${p.descripcion} - $${p.precio}`,
