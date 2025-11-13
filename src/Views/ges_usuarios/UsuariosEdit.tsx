@@ -72,10 +72,10 @@ export default function EditUsers() {
     console.log("Response update:", response);
 
     if (response.status === 200) {
-      toast.success("Usuario correctamente actualizado.");
+      alert("Usuario correctamente actualizado.");
       setTimeout(() => navigate("/GestionUsuarios"), 800);
     } else {
-      toast.error(response.message);
+      alert(response.message);
     }
   }
 
